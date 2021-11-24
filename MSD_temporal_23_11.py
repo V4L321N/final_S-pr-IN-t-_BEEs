@@ -136,7 +136,6 @@ x,y = X_remove_NaN(testbee),Y_remove_NaN(testbee)
 """-------------"""
 
 """---MSD temporal mean---"""
-
 def MSD_temporal(item):
     x,y = X_remove_NaN(item),Y_remove_NaN(item)
     MSD = []
@@ -145,17 +144,26 @@ def MSD_temporal(item):
         for t in range(tau):
             MSD_tau += (x[t+tau]-x[t])**2 + (y[t+tau]-y[t])**2
         MSD.append((1/tau)*MSD_tau)
-    plt.plot(MSD)
-    plt.xlabel(r'$\tau$')
-    plt.ylabel(r'$\langle r^{2}(\tau) \rangle$')
-    plt.title(item)
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.show()
+    return MSD
 
-
-for bee in Well_Behaved:
-     MSD_temporal(bee)
+fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4)
+itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4, WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
+n=0
+for item in itemize:
+    item.plot(MSD_temporal(Well_Behaved[n]))
+    item.set_xscale('log')
+    item.set_yscale('log')
+    item.set_ylim(0.01, 4000)
+    item.set_xticks([])
+    item.set_yticks([])
+    if n==0 or n==4 or n==8 or n==12:
+        item.set_ylabel(r'$MSD$')
+        item.set_yticks([1000])
+    if n==12 or n==13 or n==14 or n==15:
+        item.set_xlabel(r'$\tau$')
+    n+=1
+plt.subplots_adjust(wspace=0.1, hspace=0.1)
+plt.show()
 
 
 
