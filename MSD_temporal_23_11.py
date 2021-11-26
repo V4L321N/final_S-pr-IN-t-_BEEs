@@ -139,11 +139,12 @@ x,y = X_remove_NaN(testbee),Y_remove_NaN(testbee)
 def MSD_temporal(item):
     x,y = X_remove_NaN(item),Y_remove_NaN(item)
     MSD = []
-    for tau in range(1,math.floor(len(x)/2)):
+    length = len(x)
+    for tau in range(1, length):
         MSD_tau = 0
-        for t in range(tau):
+        for t in range(0, (length-tau)):
             MSD_tau += (x[t+tau]-x[t])**2 + (y[t+tau]-y[t])**2
-        MSD.append((1/tau)*MSD_tau)
+        MSD.append(MSD_tau/(length-tau))
     return MSD
 
 fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4)
@@ -153,12 +154,12 @@ for item in itemize:
     item.plot(MSD_temporal(Well_Behaved[n]))
     item.set_xscale('log')
     item.set_yscale('log')
-    item.set_ylim(0.01, 4000)
+    #item.set_ylim(0.001, 4000)
     item.set_xticks([])
-    item.set_yticks([])
+    #item.set_yticks([])
     if n==0 or n==4 or n==8 or n==12:
-        item.set_ylabel(r'$MSD$')
-        item.set_yticks([1000])
+        item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+        #item.set_yticks([1, 1000])
     if n==12 or n==13 or n==14 or n==15:
         item.set_xlabel(r'$\tau$')
     n+=1
