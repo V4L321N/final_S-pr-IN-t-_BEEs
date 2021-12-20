@@ -158,27 +158,94 @@ def MSD_temporal(item):
     x,y = X_remove_NaN(item),Y_remove_NaN(item)
     MSD = []
     length = len(x)
-    for tau in range(1, length):
+    for tau in range(0, length):
         MSD_tau = 0
         for t in range(0, (length-tau)):
             MSD_tau += (x[t+tau]-x[t])**2 + (y[t+tau]-y[t])**2
         MSD.append(MSD_tau/(length-tau))
     return MSD
 
-def myExpFunc(x, b, m):
-    return x * m + b #x ** m + b
+def myExpFunc(x, k1, k2):
+    return x ** k1 + k2#x * np.exp(k1) + k2
 
-for item in head:
-    listy = MSD_temporal(item)
-    listx = np.linspace(1, len(listy), len(listy))
-    #listyCUT = listy[0:20]
-    #listxCUT = np.linspace(1, len(listyCUT), len(listyCUT))
-    #popt, pcov = curve_fit(myExpFunc, listxCUT, listyCUT)
-    #plt.plot(listx, myExpFunc(listx, *popt), label='fit', color='black', linestyle='dotted')
-    plt.plot(listx, listy, label='MSD', color='black', alpha=0.2)
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.ylim(0.001, 4000)
+# def myLinFunc(x, b, m):
+#     return m * x + b
+
+def myLinFunc(x, m):
+    return m * x
+
+def myIntercept(x,c1,c2,c3):
+    return c3 * x ** (c1) + c2 #np.exp(c2)
+
+def myPoly(x,q1,q2):
+    return x * q1 + x**2 * q2**2
+
+# def myIntercept(x,c1,c2):
+#     return c1 * x ** (2) + c2 #np.exp(c2)
+
+fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
+itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4, WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
+type = [r'$IB_1$', r'$IB_2$', r'$IB_3$', r'$IB_4$', r'$GF_1$', r'$GF_2$', r'$GF_3$', r'$GF_4$', r'$WF_1$', r'$WF_2$', r'$WF_3$', r'$WF_4$', r'$RW_1$', r'$RW_2$', r'$RW_3$', r'$RW_4$']
+n=0
+fig.set_tight_layout(True)
+for item in itemize:#head:
+    listy = MSD_temporal(Well_Behaved[n])
+    listx = np.linspace(0, len(listy), len(listy))
+    item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
+    #item.plot(listx, listy, label='MSD', color='black', alpha=0.8, linewidth=2)
+
+
+
+    START_inter = 20
+    END_inter = len(listy)
+    listyINTER = listy[START_inter:END_inter]
+    listxINTER = np.linspace(START_inter, END_inter, END_inter-START_inter)
+    popt_inter, pcov_inter = curve_fit(myIntercept, listxINTER, listyINTER, maxfev = 2000000, p0=(1, 350, 1))
+    item.plot(listx, myIntercept(listx, *popt_inter), label='power law fit', color='red', linestyle='dashdot')
+    item.plot(listxINTER, listyINTER, color='red', alpha=0.5)
+    #coefficients = np.polyfit(np.log10(listxINTER), np.log10(listyINTER), 1)
+    #polynomial = np.poly1d(coefficients)
+    #log10_y_fit = polynomial(np.log10(x))
+    #plt.plot(x, 10**log10_y_fit, '-')
+
+    START_lin = 0
+    END_lin = 20 #len(listy)
+    listyLIN = listy[START_lin:END_lin]
+    listxLIN = np.linspace(START_lin, END_lin, END_lin-START_lin)
+    popt_lin, pcov_lin = curve_fit(myLinFunc, listxLIN, listyLIN, maxfev = 200000, p0=(1))
+    item.plot(listx, myLinFunc(listx, *popt_lin), label='linear fit', color='blue', linestyle='dotted')#, linewidth=1)
+    item.plot(listxLIN, listyLIN, color='blue', alpha=0.5)
+
+    # popt, pcov = curve_fit(myExpFunc, listxINTER, listyINTER)
+    # print(popt, pcov)
+    # plt.plot(listx, myExpFunc(listx, *popt), label='fit', color='black', linestyle='dotted')
+    item.plot(listx, (listx/listx) * listy[1], color='black', alpha=0.5, linewidth=0.5, linestyle='dotted')
+    item.text(30, listy[1] + listy[1]/10, r'$I = $' + str(round(listy[1], 3)))
+
+    item.set_xscale('log')
+    item.set_yscale('log')
+    item.set_ylim(0.1,4000)
+    item.set_xticks([])
+    item.set_yticks([])
+
+    if n in [0,1,2,3]:
+        item.set_ylim(0.001,4000)
+    if n == 0:
+        item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+        item.set_yticks([10**(-3),10**(-1),10**(1),10**(3)])
+    if n in [4,8,12]:
+        item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+        item.set_yticks([10**(-1),10**(1),10**(3)])
+        #item.set_yticks([1, 1000])
+    if n in [12,13,14,15]:
+        item.set_xlabel(r'$\tau$')
+        item.set_xticks([10**(-3),10**(-1),10**(1),10**(3)])
+    n+=1
+    #item.annotate(r'$[k_1, k_2] \approx [$'+ str(round(popt_lin[0],0))+ ',' + str(round(popt_lin[1],0)) + r'$ ]$', xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+    #item.annotate(r'$[c_1, c_2, c_3] \approx [$'+ str(round(popt_inter[0],0)) + ',' + str(round(popt_inter[1],0))  + ',' + str(round(popt_inter[2],0)) + r'$ ]$', xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+    #item.annotate(r'$\sigma \approx $'+ str(round(std_walk, 3)) + ' ' + r'$cm/s$', xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
+    #print(popt_inter)
+    item.set_xlim(1,1200)
 #plt.xticks([])
 #plt.yticks([])
 #item.text(400, 3500, r'$m= $' + str(round(popt[1], 3)))

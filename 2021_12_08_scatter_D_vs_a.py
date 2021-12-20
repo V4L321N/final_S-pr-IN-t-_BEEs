@@ -170,11 +170,13 @@ for testbee in head:
 plt.scatter(ALL_D_r_list, ALL_a_list, color='black', alpha=0.5)
 x = ALL_D_r_list
 y = ALL_a_list
-xaxis = np.linspace(0, max(x))
+xaxis = np.linspace(min(x), max(x))
 m, b = np.polyfit(x,y,1)
-plt.plot(xaxis, m*xaxis + b)
-plt.ylabel("a")
-plt.xlabel("D_r")
+plt.plot(xaxis, m*xaxis + b, color='black', linestyle='dotted')
+plt.annotate(r'$m_{\theta}=$'+str(round(m,3)), xy=(0.05,0.11),xycoords='axes fraction', fontsize=10)
+plt.annotate(r'$b_{\theta}=$'+str(round(b,3)), xy=(0.05,0.05),xycoords='axes fraction', fontsize=10)
+plt.ylabel(r'$a_{\theta}$')
+plt.xlabel(r'$D_{\theta}$')
 plt.show()
 #plt.title("ALL BEES")
 #plt.savefig("FIG_hist_per_type/ALL_a_VS_D_r")

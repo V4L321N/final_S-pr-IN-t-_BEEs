@@ -48,6 +48,17 @@ x,sub,diff,sup = diffusion()
 
 head = list(pd.DataFrame(data=pd.read_csv("data_bee_types/LS_spatial_D_x.csv")))
 
+control_30_30 = ["BT17A-1", "BT17A-2", "BT17A-3", "BT17A-4", "BT17B-1", "BT17B-2", "BT17B-3", "BT17B-4"]
+control_36_36 = ["BT07A-1", "BT07A-2", "BT07A-3", "BT07A-4", "BT07B-1", "BT07B-2", "BT07B-3", "BT07B-4"]
+control_ALL = control_30_30 + control_36_36
+for item in control_ALL:
+    head.remove(item)
+
+bad_bees = ["BT11A-1","BT11A-4", "BT01A-1","BT02B-1", "BT03A-1", "BT03A-2", "BT03A-3", "BT03A-4", "BT03B-1", "BT03B-2", "BT03B-3", "BT03B-4"]
+# #BT11A-1 and "BT11A-4 needs to be removed from the bad bees list.
+for item in bad_bees:
+    head.remove(item)
+
 IB_1 = "BT06A-2"
 IB_2 = "BT06A-3"
 IB_3 = "BT02B-2"
@@ -158,31 +169,75 @@ def MSD_temporal(item):
     x,y = X_remove_NaN(item),Y_remove_NaN(item)
     MSD = []
     length = len(x)
-    for tau in range(1, length):
+    for tau in range(0, length):
         MSD_tau = 0
         for t in range(0, (length-tau)):
             MSD_tau += (x[t+tau]-x[t])**2 + (y[t+tau]-y[t])**2
         MSD.append(MSD_tau/(length-tau))
     return MSD
 
-def myExpFunc(x, b, m):
-    return x * m + b #x ** m + b
+def myExpFunc(x, k1, k2):
+    return x ** k1 + k2
 
+def myLinFunc(x, b, m):
+    return m * x + b
+
+def myIntercept(x,c1,c2,c3):
+    return c3 * x ** (c1) + c2 #np.exp(c2)
+
+# def myIntercept(x,c1,c2):
+#     return c1 * x ** (2) + c2 #np.exp(c2)
+inter_list = []
+exp_list = []
 for item in head:
     listy = MSD_temporal(item)
-    listx = np.linspace(1, len(listy), len(listy))
-    #listyCUT = listy[0:20]
-    #listxCUT = np.linspace(1, len(listyCUT), len(listyCUT))
-    #popt, pcov = curve_fit(myExpFunc, listxCUT, listyCUT)
-    #plt.plot(listx, myExpFunc(listx, *popt), label='fit', color='black', linestyle='dotted')
-    plt.plot(listx, listy, label='MSD', color='black', alpha=0.2)
+    listx = np.linspace(0, len(listy), len(listy))
+    plt.plot(listx, listy, color='black', alpha=0.5, linewidth=0.3)
+    inter_list.append(listy[1])
+
+    # START_inter = 20
+    # END_inter = len(listy)
+    # listyINTER = listy[START_inter:END_inter]
+    # listxINTER = np.linspace(START_inter, END_inter, END_inter-START_inter)
+    # popt_inter, pcov_inter = curve_fit(myIntercept, listxINTER, listyINTER, maxfev = 2000000, p0=(1, 350, 1))
+    # plt.plot(listx, myIntercept(listx, *popt_inter), label='fit', color='red', linestyle='dashdot')
+    # plt.plot(listxINTER, listyINTER, label='MSD', color='red', alpha=0.7)
+    #coefficients = np.polyfit(np.log10(listxINTER), np.log10(listyINTER), 1)
+    #polynomial = np.poly1d(coefficients)
+    #log10_y_fit = polynomial(np.log10(x))
+    #plt.plot(x, 10**log10_y_fit, '-')
+    #
+    START_lin = 0
+    END_lin = 20 #len(listy)
+    listyLIN = listy[START_lin:END_lin]
+    listxLIN = np.linspace(START_lin, END_lin, END_lin-START_lin)
+    popt_lin, pcov_lin = curve_fit(myExpFunc, listxLIN, listyLIN, maxfev = 200000, p0=(2, 30))
+    exp_list.append(popt_lin[0])
+    #plt.plot(listxLIN, myExpFunc(listxLIN, *popt_lin), alpha=0.3, linewidth=0.5, color='blue', linestyle='dotted')#, linewidth=1)
+    #plt.plot(listxLIN, listyLIN, label='MSD', color='blue', alpha=0.7)
+
+    # popt, pcov = curve_fit(myExpFunc, listxINTER, listyINTER)
+    # print(popt, pcov)
+    # plt.plot(listx, myExpFunc(listx, *popt), label='fit', color='black', linestyle='dotted')
+
+
     plt.xscale('log')
     plt.yscale('log')
-    plt.ylim(0.001, 4000)
+    plt.xlim(1,1200)
+    #plt.ylim(0,4000)
+    #plt.show()
+    #print(popt_inter)
 #plt.xticks([])
 #plt.yticks([])
 #item.text(400, 3500, r'$m= $' + str(round(popt[1], 3)))
 #item.text(400, 3100,r'$b= $' + str(round(popt[0], 3)))
+std_inter = np.std(inter_list)
+mean_inter = np.mean(inter_list)
+mean_exp = np.mean(exp_list)
+plt.plot(listx, (listx/listx) * mean_inter, color='red', alpha=0.8, linewidth=0.9, linestyle='dotted')
+plt.plot(listx, listx**1.8, color='blue', alpha=0.8, linewidth=0.9)
+plt.xlabel(r'$\tau$')
+plt.ylabel(r'$\langle r^{2}(\tau) \rangle$')
 plt.show()
 
 """----------------------"""
