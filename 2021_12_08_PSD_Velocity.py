@@ -127,29 +127,32 @@ for item in itemize:
     item.set_xscale('log')
     item.set_yscale('log')
     item.set_xlim(0.001,np.pi)
-
+    item.set_ylim(0.0001,10000)
     item.set_xticks([])
     item.set_yticks([])
     item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
     item.annotate(r'$D_{v}=$'+ str(round(popt[0], 4)), xy=(0.05,0.11),xycoords='axes fraction', fontsize=10)
     item.annotate(r'$a_{v}=$'+ str(round(popt[1], 4)), xy=(0.05,0.05),xycoords='axes fraction', fontsize=10)
+    #item.plot(omega, 1/(omega**2))
     #item.text(0.002,0.02,r'$D_{v}=$' + str(round(popt[0], 4)))
     #item.text(0.002,0.005,r'$a_{v}=$' + str(round(popt[1], 4)))
-    if n==0:
-        #item.legend(loc='upper right')
-        q = 1
+    # if n==0:
+    #     #item.legend(loc='upper right')
+    #     q = 1
     if n in [0,4,8,12]:#n==0 or n==4 or n==8 or n==12:
         item.set_ylabel(r'$S_{v}(\omega)$')
-        item.set_yticks([10**(-1), 10**(1), 10**(3)])
+        item.set_yticks([10**(-2), 10**0, 10**2])
+    #     item.set_yticks([10**(-1), 10**(1), 10**(3)])
     if n in [12,13,14,15]:#n==12 or n==13 or n==14 or n==15:
         item.set_xlabel(r'$\omega$')
-        item.set_xticks([10**(-2), 10**(-1), 10**(0)])
-    if n in [0,1,2,3]:
-        item.set_ylim(0.00001,30)
-    if n in [4,5,6,7]:
-        item.set_ylim(0.001,300)
-    if n in [8,9,10,11,12,13,14,15]:
-        item.set_ylim(0.001,30000)
+        item.set_xticks([10**(-2),10**(-1), 10**0])
+    #     item.set_xticks([10**(-2), 10**(-1), 10**(0)])
+    # if n in [0,1,2,3]:
+    #     item.set_ylim(0.00001,30)
+    # if n in [4,5,6,7]:
+    #     item.set_ylim(0.001,300)
+    # if n in [8,9,10,11,12,13,14,15]:
+    #     item.set_ylim(0.001,30000)
     n += 1
     #plt.savefig("FIG_D_v/" + str(testbee))
     #plt.close()

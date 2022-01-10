@@ -177,8 +177,8 @@ def myLinFunc(x, m):
 def myIntercept(x,c1,c2,c3):
     return c3 * x ** (c1) + c2 #np.exp(c2)
 
-def myPoly(x,q1,q2):
-    return x * q1 + x**2 * q2**2
+def myPoly(x,q1,q2,q3):
+    return x * q1 + x**2 * q2**2 + q3
 
 # def myIntercept(x,c1,c2):
 #     return c1 * x ** (2) + c2 #np.exp(c2)
@@ -192,17 +192,23 @@ for item in itemize:#head:
     listy = MSD_temporal(Well_Behaved[n])
     listx = np.linspace(0, len(listy), len(listy))
     item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
-    #item.plot(listx, listy, label='MSD', color='black', alpha=0.8, linewidth=2)
+    item.plot(listx, listy, label='MSD', color='black', alpha=0.5)
 
+    START_poly = 0
+    END_poly = 10#len(listy)
+    listyPOLY = listy[START_poly:END_poly]
+    listxPOLY = np.linspace(START_poly, END_poly, END_poly-START_poly)
+    popt_poly, pcov_poly = curve_fit(myPoly, listxPOLY, listyPOLY, maxfev = 2000000, p0=(1, 350, 1))
+    item.plot(listx, myPoly(listx, *popt_poly), label='polynomial fit', color='black', linestyle='dashed')
+    #item.plot(listxPOLY, listyPOLY, color='red', alpha=0.5)
 
-
-    START_inter = 20
-    END_inter = len(listy)
+    START_inter = 0#20
+    END_inter = 10#len(listy)
     listyINTER = listy[START_inter:END_inter]
     listxINTER = np.linspace(START_inter, END_inter, END_inter-START_inter)
     popt_inter, pcov_inter = curve_fit(myIntercept, listxINTER, listyINTER, maxfev = 2000000, p0=(1, 350, 1))
     item.plot(listx, myIntercept(listx, *popt_inter), label='power law fit', color='red', linestyle='dashdot')
-    item.plot(listxINTER, listyINTER, color='red', alpha=0.5)
+    #item.plot(listxINTER, listyINTER, color='red', alpha=0.5)
     #coefficients = np.polyfit(np.log10(listxINTER), np.log10(listyINTER), 1)
     #polynomial = np.poly1d(coefficients)
     #log10_y_fit = polynomial(np.log10(x))
@@ -214,7 +220,7 @@ for item in itemize:#head:
     listxLIN = np.linspace(START_lin, END_lin, END_lin-START_lin)
     popt_lin, pcov_lin = curve_fit(myLinFunc, listxLIN, listyLIN, maxfev = 200000, p0=(1))
     item.plot(listx, myLinFunc(listx, *popt_lin), label='linear fit', color='blue', linestyle='dotted')#, linewidth=1)
-    item.plot(listxLIN, listyLIN, color='blue', alpha=0.5)
+    #item.plot(listxLIN, listyLIN, color='blue', alpha=0.5)
 
     # popt, pcov = curve_fit(myExpFunc, listxINTER, listyINTER)
     # print(popt, pcov)
@@ -230,6 +236,17 @@ for item in itemize:#head:
 
     if n in [0,1,2,3]:
         item.set_ylim(0.001,4000)
+        item.annotate(r'$v = $'+ str(round(popt_poly[1],3)), xy=(0.1,0.7), xycoords='axes fraction', fontsize=10)
+        item.annotate(r'$\alpha = $'+ str(round(popt_inter[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+        item.annotate(r'$K_{\alpha} = $'+ str(round(popt_inter[2],3)), xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
+    if n in [4,5,6,7]:
+        item.annotate(r'$v = $'+ str(round(popt_poly[1],3)), xy=(0.1,0.7), xycoords='axes fraction', fontsize=10)
+        item.annotate(r'$\alpha = $'+ str(round(popt_inter[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+        item.annotate(r'$K_{\alpha} = $'+ str(round(popt_inter[2],3)), xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
+    if n in [8,9,10,11,12,13,14,15]:
+        item.annotate(r'$v = $'+ str(round(popt_poly[1],3)), xy=(0.1,0.05), xycoords='axes fraction', fontsize=10)
+        item.annotate(r'$\alpha = $'+ str(round(popt_inter[0],3)), xy=(0.1,0.25), xycoords='axes fraction', fontsize=10)
+        item.annotate(r'$K_{\alpha} = $'+ str(round(popt_inter[2],3)), xy=(0.1,0.15), xycoords='axes fraction', fontsize=10)
     if n == 0:
         item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
         item.set_yticks([10**(-3),10**(-1),10**(1),10**(3)])
@@ -242,7 +259,7 @@ for item in itemize:#head:
         item.set_xticks([10**(-3),10**(-1),10**(1),10**(3)])
     n+=1
     #item.annotate(r'$[k_1, k_2] \approx [$'+ str(round(popt_lin[0],0))+ ',' + str(round(popt_lin[1],0)) + r'$ ]$', xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
-    #item.annotate(r'$[c_1, c_2, c_3] \approx [$'+ str(round(popt_inter[0],0)) + ',' + str(round(popt_inter[1],0))  + ',' + str(round(popt_inter[2],0)) + r'$ ]$', xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+
     #item.annotate(r'$\sigma \approx $'+ str(round(std_walk, 3)) + ' ' + r'$cm/s$', xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
     #print(popt_inter)
     item.set_xlim(1,1200)

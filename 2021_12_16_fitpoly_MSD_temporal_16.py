@@ -195,7 +195,7 @@ for item in itemize:#head:
     #item.plot(listx, listy, label='MSD', color='black', alpha=0.8, linewidth=2)
 
     START_poly = 0
-    END_poly = 20 #len(listy)
+    END_poly = 10 #len(listy)
     listyPOLY = listy[START_poly:END_poly]
     listxPOLY = np.linspace(START_poly, END_poly, END_poly-START_poly)
     popt_poly, pcov_poly = curve_fit(myPoly, listxPOLY, listyPOLY, maxfev = 2000000, p0=(1, 350, 1))
