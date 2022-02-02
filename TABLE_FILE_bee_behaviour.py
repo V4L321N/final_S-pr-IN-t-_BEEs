@@ -5,7 +5,7 @@ import math
 import matplotlib.patches as patches
 from scipy.optimize import curve_fit
 from scipy.stats import norm
-
+#import time
 
 ArenaX = pd.DataFrame(data=pd.read_csv("~/Desktop/BAC_bee_mobility/final_S(pr)IN(t)_BEEs/V_3/data_bee_types/Arena.csv"), columns=["ArenaX"])
 ArenaY = pd.DataFrame(data=pd.read_csv("~/Desktop/BAC_bee_mobility/final_S(pr)IN(t)_BEEs/V_3/data_bee_types/Arena.csv"), columns=["ArenaY"])
@@ -20,7 +20,6 @@ control_36_36 = ["BT07A-1", "BT07A-2", "BT07A-3", "BT07A-4", "BT07B-1", "BT07B-2
 control_ALL = control_30_30 + control_36_36
 for item in control_ALL:
     head.remove(item)
-
 
 NARROW = ["BT01A-1","BT01A-2","BT01A-3","BT01A-4","BT01C-1","BT01C-2","BT01C-3","BT01C-4","BT02A-1","BT02A-2","BT02A-3","BT02A-4","BT02B-1","BT02B-2","BT02B-3","BT02B-4","BT03A-1","BT03A-2","BT03A-3","BT03A-4","BT03B-1","BT03B-2","BT03B-3","BT03B-4","BT06A-1","BT06A-2","BT06A-3","BT06A-4","BT06B-1","BT06B-2","BT06B-3","BT06B-4","BT18A-1","BT18A-2","BT18A-3","BT18A-4","BT18B-1","BT18B-2","BT18B-3","BT18B-4"]
 STEEP = ["BT04A-1","BT04A-2","BT04A-3","BT04A-4","BT04B-1","BT04B-2","BT04B-3","BT04B-4","BT05A-1","BT05A-2","BT05A-3","BT05A-4","BT05B-1","BT05B-2","BT05B-3","BT05B-4","BT08A-1","BT08A-2","BT08A-3","BT08A-4","BT08B-1","BT08B-2","BT08B-3","BT08B-4","BT09A-1","BT09A-2","BT09A-3","BT09A-4","BT09B-1","BT09B-2","BT09B-3","BT09B-4","BT10A-1","BT10A-2","BT10A-3","BT10A-4","BT10B-1","BT10B-2","BT10B-3","BT10B-4"]
@@ -148,9 +147,9 @@ for testbee in head:
     listxLIN = np.linspace(START_lin, END_lin, END_lin-START_lin)
     popt_lin, pcov_lin = curve_fit(myLin2Func, listxLIN, listyLIN, maxfev = 200000, p0=(1))
 
-    list_TSMD_v.append(round(popt_poly[1],3))
-    list_TSMD_K.append(round(popt_power[2],3))
-    list_TSMD_alpha.append(round(popt_power[0],3))
+    list_TSMD_v.append(round(popt_poly[1],2))
+    list_TSMD_K.append(round(popt_power[2],2))
+    list_TSMD_alpha.append(round(popt_power[0],2))
 """-end-------------list: TSMD DIFFERENT FITS ALL BEES/LOGLOG PLOT-----------"""
 
 """-begin----------function: calculate sitting and walking velocites------"""
@@ -179,7 +178,7 @@ def calc_vel_sw(item):
             list_vel_ONLY_stopping.append(list_vel[tt])
     return list_vel_NO_stopping, list_vel_ONLY_stopping
 """-end----------function: calculate mean sitting and walking velocites------"""
-#
+
 """-begin--------list: HISTOGRAM OF THE VELOCITIES ALL BEES-----------------"""
 list_mean_walk_vel = []
 for testbee in head:
@@ -232,8 +231,8 @@ for testbee in head:
     end = 2 * np.pi / 2
     omega = np.linspace(start, end, length)
     popt, pcov = curve_fit(S, omega, psd_test)
-    list_D_v.append(round(popt[0], 4))
-    list_a_v.append(round(popt[1], 4))
+    list_D_v.append(round(popt[0], 2))
+    list_a_v.append(round(popt[1], 2))
 """-end----------list: PSD OF THE VELOCITY ALL BEES-------------------------"""
 
 """-begin------function: calculate turning angle in for each time step-------"""
@@ -319,8 +318,8 @@ for testbee in head:
     end = 2 * np.pi / 2
     omega = np.linspace(start, end, length)
     popt, pcov = curve_fit(S, omega, psd_test, maxfev = 200000, p0=(10,0.001))
-    list_D_r.append(round(popt[0], 4))
-    list_a_r.append(round(popt[1], 4))
+    list_D_r.append(round(popt[0], 2))
+    list_a_r.append(round(popt[1], 2))
 """-end----------list: PSD OF ANGLE THETA ALL BEES--------------------------"""
 
 """-begin------function: map velocity as shot noise--------------------------"""
@@ -441,7 +440,6 @@ def calc_dur_stop_2(item):
 list_tau = []
 list_beta = []
 for testbee in head:
-    print(testbee)
     xspace = np.linspace(0,10,99)
     vel = calc_vel(testbee)
     vel_0 = np.mean(vel[0])
@@ -450,11 +448,11 @@ for testbee in head:
         # popt1, pcov1 = curve_fit(myCurve1, stop_temp, stop_durations, maxfev = 200000, p0=(0,0))
         popt2, pcov2 = curve_fit(myCurve2, stop_temp, stop_durations, maxfev = 200000, p0=(0,0))
         # popt3, pcov3 = curve_fit(myCurve3, stop_temp, stop_durations, maxfev = 200000, p0=(0,0,0))
-        list_tau.append(popt2[0])
-        list_beta.append(popt2[1])
+        list_tau.append(round(popt2[0], 2))
+        list_beta.append(round(popt2[1], 2))
     else:
-        list_tau.append("nan")
-        list_beta.append("nan")
+        list_tau.append(0)
+        list_beta.append(0)
 """-end----------list: STOPPING OVER TEMPERATURE ALL BEES-------------------"""
 
 """-begin------function: calculate probability at a temperature--------------"""
@@ -503,21 +501,22 @@ end = 6
 dT = 0.1
 xspace = np.linspace(0, 10, 1000)
 for testbee in head:
-    if item not in ["BT05A-2","BT06A-3"]:
+    if testbee not in ["BT05A-2","BT06A-3","BT14A-2"]:
         vel_PSD = PSD_vel(testbee)
         length = len(vel_PSD)
         start_new = 0.001
         end_new = 2 * np.pi / 2
         omega_new = np.linspace(start_new, end_new, length)
-        item.plot(omega_new, vel_PSD, color='black', alpha=0.5)
-        mean_velocity = np.mean(calc_vel_at_noonly_stopping(Well_Behaved[n])[0])
-        all_stop_durations, mean_delta_stop_temp = calc_dur_stop(Well_Behaved[n])
-        all_walk_durations, mean_delta_walk_temp = calc_dur_walk(Well_Behaved[n])
+        mean_velocity = np.mean(calc_vel_at_noonly_stopping(testbee)[0])
+        all_stop_durations, mean_delta_stop_temp = calc_dur_stop(testbee)
+        all_walk_durations, mean_delta_walk_temp = calc_dur_walk(testbee)
+        print(testbee)
         mean_t1 = np.mean(all_walk_durations)
+
         #popt_stop1, pcov_stop1 = curve_fit(myCurve1, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
         popt_stop2, pcov_stop2 = curve_fit(myCurve2, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
         #popt_stop3, pcov_stop3 = curve_fit(myCurve3, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0,0))#, bounds=([0,0,0], [3.0, 1.0, 1.0]))
-        prob_dataset = probability_T(Well_Behaved[n])
+        prob_dataset = probability_T(testbee)
         bins = np.arange(start, end, dT)
         rangeT = np.linspace(start, end, 59)
         data_entries, bins = np.histogram(prob_dataset, bins=bins, range=(start,end), density=True)
@@ -527,7 +526,6 @@ for testbee in head:
                 sum += (Prob[int(round(T/0.1, 0))] * dTemp) / ((myCurve2(T, *popt_stop2) + 1) * ((1 / myCurve2(T, *popt_stop2) + 1 / t_1) ** 2 + w ** 2))
             return 2 * v_0 ** 2 * sum
         omega = np.linspace(0.0001, (np.pi/2))
-        item.plot(omega, S(omega, mean_velocity, mean_t1, data_entries, dT), linestyle='dashed', color='black')
         x_low = 0.1
         x_high = 1.0
         y_low = S(x_low, mean_velocity, mean_t1, data_entries, dT)
@@ -539,9 +537,11 @@ for testbee in head:
         high_omega = np.linspace(0.015,1.5)
         popt_pow, pcov_pow = curve_fit(powerCurve, high_omega, S(high_omega, mean_velocity, mean_t1, data_entries, dT), maxfev=200000, p0=(0))
         list_alpha_2.append(round(popt_pow[0],2))
+
+        print(testbee)
     else:
-        list_alpha_1.append("nan")
-        list_alpha_2.append("nan")
+        list_alpha_1.append(0)
+        list_alpha_2.append(0)
 """-end----------figure: PSD OF RTS 16 BEES----------------------------------"""
 
 """-begin------function: calculate gradient----------------------------------"""
@@ -592,3 +592,39 @@ for testbee in head:
 
 df = pd.DataFrame(list(zip(list_name, list_type, list_TSMD_b, list_TSMD_m, list_TSMD_v, list_TSMD_K, list_TSMD_alpha, list_mean_walk_vel, list_D_v, list_a_v, list_D_r, list_a_r, list_tau, list_beta, list_alpha_1, list_alpha_2)), columns=["ID", "type", r'$b_{TSMD}$', r'$m_{TSMD}$', r'$v_{TSMD}$', r'$K_{TSMD}$', r'$\alpha_{TSMD}$', r'$v_{mean}$', r'$D_{v}$', r'$a_{v}$', r'$D_{\theta}$', r'$a_{\theta}$', r'$\tau$', r'$\beta$', r'$\alpha_{1}$', r'$\alpha_{2}$'])
 df.to_csv("MASTER_TABLE.csv")
+
+#print(list_TSMD_b)
+
+#mean_TSMD_b = np.mean(list_TSMD_b)
+#mean_TSMD_m = np.mean(list_TSMD_m)
+mean_TSMD_v = np.mean(list_TSMD_v)
+mean_TSMD_K = np.mean(list_TSMD_K)
+mean_TSMD_alpha = np.mean(list_TSMD_alpha)
+mean_mean_walk_vel = np.mean(list_mean_walk_vel)
+mean_D_v = np.mean(list_D_v)
+mean_a_v = np.mean(list_a_v)
+mean_D_r = np.mean(list_D_r)
+mean_a_r = np.mean(list_a_r)
+mean_tau = np.mean(list_tau)
+mean_beta = np.mean(list_beta)
+mean_alpha_1 = np.mean(list_alpha_1)
+mean_alpha_2 = np.mean(list_alpha_2)
+
+print(mean_TSMD_b, mean_TSMD_m, mean_TSMD_v, mean_TSMD_K, mean_TSMD_alpha, mean_TSMD_alpha, mean_mean_walk_vel, mean_D_v, mean_a_v, mean_D_r, mean_a_r, mean_tau, mean_beta, mean_alpha_1, mean_alpha_2)
+
+std_TSMD_b = np.std(list_TSMD_b)
+std_TSMD_m = np.std(list_TSMD_m)
+std_TSMD_v = np.std(list_TSMD_v)
+std_TSMD_K = np.std(list_TSMD_K)
+std_TSMD_alpha = np.std(list_TSMD_alpha)
+std_mean_walk_vel = np.std(list_mean_walk_vel)
+std_D_v = np.std(list_D_v)
+std_a_v = np.std(list_a_v)
+std_D_r = np.std(list_D_r)
+std_a_r = np.std(list_a_r)
+std_tau = np.std(list_tau)
+std_beta = np.std(list_beta)
+std_alpha_1 = np.std(list_alpha_1)
+std_alpha_2 = np.std(list_alpha_2)
+
+print(std_TSMD_b, std_TSMD_m, std_TSMD_v, std_TSMD_K, std_TSMD_alpha, std_TSMD_alpha, std_mean_walk_vel, std_D_v, std_a_v, std_D_r, std_a_r, std_tau, std_beta, std_alpha_1, std_alpha_2)
