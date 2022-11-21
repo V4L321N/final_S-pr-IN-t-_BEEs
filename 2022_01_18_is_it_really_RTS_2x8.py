@@ -6,6 +6,7 @@ from scipy.stats import norm
 from math import log, floor
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+import matplotlib.patches as patches
 
 head = list(pd.DataFrame(data=pd.read_csv("data_bee_types/LS_spatial_D_x.csv")))
 
@@ -92,98 +93,130 @@ def calc_dur_walk(item):
             elif v == len(list_vel[:-2]):
                 all_walk_durations.append(duration_walk)
                 mean_delta_walk_temp.append(np.abs(np.mean(walk_temperatures) - T_ideal))
-
     return all_walk_durations, mean_delta_walk_temp
 #print(calc_vel(testbee))
 #plt.show()
 """-end--------calculate duration walking-----------------"""
 
 """-begin------calculate duration stopping-----------------"""
-def calc_dur_stop(item):
+def calc_vel_shot(item):
     list_vel = []
+    list_shot = []
     X_dataset_wo_NAN = X_remove_NaN(item) #test_x
     Y_dataset_wo_NAN = Y_remove_NaN(item) #test_y
     n = len(X_dataset_wo_NAN) - 1
     for t in range(n):
         velocity = np.sqrt((X_dataset_wo_NAN[t + 1] - X_dataset_wo_NAN[t]) ** 2 + (Y_dataset_wo_NAN[t + 1] - Y_dataset_wo_NAN[t]) ** 2)
+        if velocity <= 0.5:
+            list_shot.append(0)
+        else:
+            list_shot.append(1)
         list_vel.append(velocity)
-
-    T_dataset_wo_NAN = T_remove_NaN(item)
-    T_minmax_data = pd.DataFrame(data=pd.read_csv("data_bee_types/temperature_variables.csv"), columns=[item])
-    T_ideal = T_minmax_data.iloc[1].item()
-
-    stop_vel = 0.4
-    duration_stop = 0
-    all_stop_durations = []
-    stop_temperatures = []
-    mean_delta_stop_temp = []
-    for v in range(len(list_vel[:-1])):
-        if list_vel[v] <= stop_vel:
-            duration_stop += 1
-            stop_temperatures.append(T_dataset_wo_NAN[v])
-            if list_vel[v+1] > stop_vel:
-                all_stop_durations.append(duration_stop)
-                mean_delta_stop_temp.append(np.abs(np.mean(stop_temperatures) - T_ideal))
-                duration_walk = 0
-                walk_temperatures = []
-            elif v == len(list_vel[:-2]):
-                all_stop_durations.append(duration_stop)
-                mean_delta_stop_temp.append(np.abs(np.mean(stop_temperatures) - T_ideal))
-    return all_stop_durations, mean_delta_stop_temp
+    return list_vel, list_shot
 #print(calc_vel(testbee))
 #plt.show()
 """-end--------calculate duration stopping-----------------"""
 
-def myCurve(x, tau, beta):
-    return x ** tau * beta
-
-# def myCurve(x,tau,beta):
-#     return tau * np.exp(-beta * x) #tau / (1 + (beta * x)) #
-
-# def myCurve(x,tau,beta, gam):
-#     return tau * (beta * x) ** gam #tau / (1 + (beta * x))
-
 # for testbee in head:
 #     print()
-ALL_WALKS_at_dT = []
-ALL_TEMPS_at_walk = []
-ALL_STOPS_at_dT = []
-ALL_TEMPS_at_stop = []
-for testbee in head:
-    walking_times, mean_walk_temps = calc_dur_walk(testbee)
-    stopping_times, mean_stop_temps = calc_dur_stop(testbee)
-    ALL_WALKS_at_dT.extend(walking_times)
-    ALL_TEMPS_at_walk.extend(mean_walk_temps)
-    ALL_STOPS_at_dT.extend(stopping_times)
-    ALL_TEMPS_at_stop.extend(mean_stop_temps)
-#plt.hist(ALL_WALKS_at_dT, bins=100)
-fig, (subfigure_stop, subfigure_walk) = plt.subplots(1, 2, figsize=(10,5))
+
+IB_1 = "BT06A-2"
+IB_2 = "BT06A-3"
+IB_3 = "BT02B-2"
+IB_4 = "BT02B-1"
+GF_1 = "BT09A-2"
+GF_2 = "BT09B-2"
+GF_3 = "BT09B-4"
+GF_4 = "BT12B-2"
+first_squad = [IB_1, IB_2, IB_3, IB_4, GF_1, GF_2, GF_3, GF_4]
+WF_1 = "BT04B-3"
+WF_2 = "BT09B-1"
+WF_3 = "BT12B-1"
+WF_4 = "BT13B-3"
+RW_1 = "BT03A-1"
+RW_2 = "BT06B-1"
+RW_3 = "BT13A-3"
+RW_4 = "BT12A-1"
+second_squad = [WF_1, WF_2, WF_3, WF_4, RW_1, RW_2, RW_3, RW_4]
+
+fig, ((IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4)) = plt.subplots(8, 1, figsize=(10,10))
+itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4]
+type = [r'$IB_1$', r'$IB_2$', r'$IB_3$', r'$IB_4$', r'$GF_1$', r'$GF_2$', r'$GF_3$', r'$GF_4$']
+m=0
 fig.set_tight_layout(True)
-subfigure_stop.scatter(ALL_TEMPS_at_stop, ALL_STOPS_at_dT, color='black', alpha=0.1)
-subfigure_walk.scatter(ALL_TEMPS_at_walk, ALL_WALKS_at_dT, color='black', alpha=0.1)
-stop, stop_cov = np.polyfit(ALL_TEMPS_at_stop, ALL_STOPS_at_dT, 1, cov=True)
-walk, walk_cov = np.polyfit(ALL_TEMPS_at_walk, ALL_WALKS_at_dT, 1, cov=True)
-
-popt_stop, pcov_stop = curve_fit(myCurve, ALL_TEMPS_at_stop, ALL_STOPS_at_dT, maxfev = 200000, p0=(4,4))
-popt_walk, pcov_walk = curve_fit(myCurve, ALL_TEMPS_at_walk, ALL_WALKS_at_dT, maxfev = 200000, p0=(1,1))
-
-
-print(np.corrcoef(ALL_TEMPS_at_walk,ALL_WALKS_at_dT))
-print(np.corrcoef(ALL_TEMPS_at_stop,ALL_STOPS_at_dT))
-x = np.linspace(0,10)
-print(stop, stop_cov)
-print(walk, walk_cov)
-subfigure_stop.plot(x, stop[0]*x+stop[1], color='blue', linewidth=1.1)
-subfigure_stop.plot(x, myCurve(x, *popt_stop), linewidth=2, color='blue', linestyle='dashed')#, linewidth=1)
-subfigure_walk.plot(x, walk[0]*x+walk[1], color='red', linewidth=1.1)
-subfigure_walk.plot(x, myCurve(x, *popt_walk), linewidth=2, color='red', linestyle='dashed')#, linewidth=1)
-#subfigure_stop.plot(x, np.polyval(stop,ALL_TEMPS_at_stop), color='firebrick', linewidth=1, linestyle='dashed')
-#subfigure_walk.plot(x, np.polyval(walk,ALL_TEMPS_at_stop), color='cornflowerblue', linewidth=1, linestyle='dashed')
-
-subfigure_stop.set_xlabel(r'$\Delta T \,[°C]$')
-subfigure_stop.set_ylabel("stop duration " r'$t_{s} \, [s]$')
-subfigure_walk.set_xlabel(r'$\Delta T \,[°C]$')
-subfigure_walk.set_ylabel("walk duration " r'$t_{w} \, [s]$')
-#plt.xscale('log')
-#plt.yscale('log')
+for item in itemize:
+    vel, shot = calc_vel_shot(first_squad[m])
+    color_RTS = 'tab:red'
+    item.set_ylabel('RTS', color=color_RTS, fontdict=dict(weight='bold'))
+    item.plot(shot, color=color_RTS)
+    ax2 = item.twinx()
+    color_vel = 'tab:blue'
+    ax2.set_ylabel('v'+r'$ [cm/s]$', color=color_vel, fontdict=dict(weight='bold'))
+    ax2.plot(vel, color=color_vel)
+    ax2.set_ylim(-0.2,6.2)
+    ax2.set_yticks([0,3,6])
+    fig.tight_layout()
+    item.set_xlim(-1,1201)
+    item.set_ylim(-0.04, 1.04)
+    item.set_xticks([])
+    item.set_yticks([0,1])
+    if item == GF4:
+        item.set_xticks([0,1200])
+        item.set_xlabel('time '+r'$ [s]$')
+    item.annotate(type[m], xy=(0.96,0.8),xycoords='axes fraction', fontsize=10)
+    m+=1
 plt.show()
+
+fig, ((WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4)) = plt.subplots(8, 1, figsize=(10,10))
+itemize = [WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
+type = [r'$WF_1$', r'$WF_2$', r'$WF_3$', r'$WF_4$', r'$RW_1$', r'$RW_2$', r'$RW_3$', r'$RW_4$']
+n=0
+fig.set_tight_layout(True)
+
+for item in itemize:
+    vel, shot = calc_vel_shot(second_squad[n])
+    color_RTS = 'tab:red'
+    item.set_ylabel('RTS', color=color_RTS, fontdict=dict(weight='bold'))
+    item.plot(shot, color=color_RTS)
+    ax2 = item.twinx()
+    color_vel = 'tab:blue'
+    ax2.set_ylabel('v'+r'$ [cm/s]$', color=color_vel, fontdict=dict(weight='bold'))
+    ax2.plot(vel, color=color_vel)
+    ax2.set_ylim(-0.2,6.2)
+    ax2.set_yticks([0,3,6])
+    fig.tight_layout()
+    item.set_xlim(-1,1201)
+    item.set_ylim(-0.04, 1.04)
+    item.set_xticks([])
+    item.set_yticks([0,1])
+    if item == RW4:
+        item.set_xticks([0,1200])
+        item.set_xlabel('time '+r'$ [s]$')
+    item.annotate(type[n], xy=(0.96,0.8),xycoords='axes fraction', fontsize=10)
+    n+=1
+plt.show()
+
+
+    # plt.plot(calc_vel_shot(testbee)[0])
+    # plt.title(testbee)
+    # plt.xlabel('time '+r'$ [s]$')
+    # plt.ylabel('velocity '+r'$ [cm/s]$')
+    # plt.show()
+
+# fig, ax1 = plt.subplots()
+#
+# color = 'tab:red'
+# ax1.set_xlabel('time (s)')
+# ax1.set_ylabel('exp', color=color)
+# ax1.plot(t, data1, color=color)
+# ax1.tick_params(axis='y', labelcolor=color)
+#
+# ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+#
+# color = 'tab:blue'
+# ax2.set_ylabel('sin', color=color)  # we already handled the x-label with ax1
+# ax2.plot(t, data2, color=color)
+# ax2.tick_params(axis='y', labelcolor=color)
+#
+# fig.tight_layout()  # otherwise the right y-label is slightly clipped
+# plt.show()

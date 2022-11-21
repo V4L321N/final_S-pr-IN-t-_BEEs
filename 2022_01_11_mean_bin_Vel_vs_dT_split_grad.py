@@ -26,8 +26,8 @@ STEEPEST = ["BT11A-1","BT11A-2","BT11A-3","BT11A-4","BT11B-1","BT11B-2","BT11B-3
 
 bad_bees = ["BT11A-1","BT11A-4", "BT01A-1","BT02B-1", "BT03A-1", "BT03A-2", "BT03A-3", "BT03A-4", "BT03B-1", "BT03B-2", "BT03B-3", "BT03B-4"]
 # #BT11A-1 and "BT11A-4 needs to be removed from the bad bees list.
-for item in bad_bees:
-    head.remove(item)
+#for item in bad_bees:
+#    head.remove(item)
 
 
 """ CONSTANTS """
@@ -101,7 +101,7 @@ m_list = np.zeros(100)
 for testbee in head:
     vel = calc_vel(testbee)
     T = T_remove_NaN(testbee)
-
+    plt.scatter(T, vel, color='black',  alpha=0.01)
     T_bin = np.arange(min(T), max(T), 0.1)
     bin_vel_LIST = []
     for i in T_bin:
@@ -122,7 +122,7 @@ for testbee in head:
     #plt.plot(T_bin, bin_vel_LIST,alpha=0.3)
 for v in range(len(v_mean_list)):
     v_mean_list[v] /= m_list[v]
-plt.plot(T_master_bin, v_mean_list, label="all")
+plt.plot(T_master_bin, v_mean_list, label="all", color="slategrey", linewidth=2)
 #plt.show()
 
 """--------"""
@@ -155,7 +155,7 @@ for testbee in NARROW:
     #plt.plot(T_bin, bin_vel_LIST,alpha=0.3)
 for v in range(len(v_mean_list)):
     v_mean_list[v] /= m_list[v]
-plt.plot(T_master_bin, v_mean_list, label="narrow")
+plt.plot(T_master_bin, v_mean_list, label="narrow", color="black", linestyle="dotted")
 
 T_master_bin = np.arange(27, 37, 0.1)
 v_mean_list = np.zeros(100)
@@ -185,7 +185,7 @@ for testbee in STEEP:
     #plt.plot(T_bin, bin_vel_LIST,alpha=0.3)
 for v in range(len(v_mean_list)):
     v_mean_list[v] /= m_list[v]
-plt.plot(T_master_bin, v_mean_list, label="steep")
+plt.plot(T_master_bin, v_mean_list, label="steep", color="black", linestyle="dashed")
 
 T_master_bin = np.arange(27, 37, 0.1)
 v_mean_list = np.zeros(100)
@@ -215,7 +215,7 @@ for testbee in STEEPEST:
     #plt.plot(T_bin, bin_vel_LIST,alpha=0.3)
 for v in range(len(v_mean_list)):
     v_mean_list[v] /= m_list[v]
-plt.plot(T_master_bin, v_mean_list, label="steepest")
+plt.plot(T_master_bin, v_mean_list, label="steepest", color="black", linestyle="dashdot")
 
 T_master_bin = np.arange(27, 37, 0.1)
 v_mean_list = np.zeros(100)
@@ -245,7 +245,7 @@ for testbee in control_30_30:
     #plt.plot(T_bin, bin_vel_LIST,alpha=0.3)
 for v in range(len(v_mean_list)):
     v_mean_list[v] /= m_list[v]
-plt.plot(T_master_bin, v_mean_list, label="control 30 30")
+plt.plot(T_master_bin, v_mean_list, label="control 30 30", color="steelblue", linestyle=(0, (3, 1, 1, 1, 1, 1)))
 
 T_master_bin = np.arange(27, 37, 0.1)
 v_mean_list = np.zeros(100)
@@ -274,8 +274,12 @@ for testbee in control_36_36:
     #plt.plot(T_bin, bin_vel_LIST,alpha=0.3)
 for v in range(len(v_mean_list)):
     v_mean_list[v] /= m_list[v]
-plt.plot(T_master_bin, v_mean_list, label="control 36 36")
-plt.legend()#loc="lower left")
+plt.plot(T_master_bin, v_mean_list, label="control 36 36", color="red", linestyle=(0, (3, 1, 1, 1)))
+plt.xlim(28,36)
+plt.ylim(0,4)
+plt.xlabel('Temperature[°C]')
+plt.ylabel('velocity[cm/s]')
+plt.legend(loc="upper right")
 plt.show()
 
 

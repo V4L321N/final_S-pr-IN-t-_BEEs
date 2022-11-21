@@ -21,7 +21,7 @@ control_ALL = control_30_30 + control_36_36
 for item in control_ALL:
     head.remove(item)
 
-NARROW = ["BT01A-1","BT01A-2","BT01A-3","BT01A-4","BT01C-1","BT01C-2","BT01C-3","BT01C-4","BT02A-1","BT02A-2","BT02A-3","BT02A-4","BT02B-1","BT02B-2","BT02B-3","BT02B-4","BT03A-1","BT03A-2","BT03A-3","BT03A-4","BT03B-1","BT03B-2","BT03B-3","BT03B-4","BT06A-1","BT06A-2","BT06A-3","BT06A-4","BT06B-1","BT06B-2","BT06B-3","BT06B-4","BT18A-1","BT18A-2","BT18A-3","BT18A-4","BT18B-1","BT18B-2","BT18B-3","BT18B-4"]
+FLAT = ["BT01A-1","BT01A-2","BT01A-3","BT01A-4","BT01C-1","BT01C-2","BT01C-3","BT01C-4","BT02A-1","BT02A-2","BT02A-3","BT02A-4","BT02B-1","BT02B-2","BT02B-3","BT02B-4","BT03A-1","BT03A-2","BT03A-3","BT03A-4","BT03B-1","BT03B-2","BT03B-3","BT03B-4","BT06A-1","BT06A-2","BT06A-3","BT06A-4","BT06B-1","BT06B-2","BT06B-3","BT06B-4","BT18A-1","BT18A-2","BT18A-3","BT18A-4","BT18B-1","BT18B-2","BT18B-3","BT18B-4"]
 STEEP = ["BT04A-1","BT04A-2","BT04A-3","BT04A-4","BT04B-1","BT04B-2","BT04B-3","BT04B-4","BT05A-1","BT05A-2","BT05A-3","BT05A-4","BT05B-1","BT05B-2","BT05B-3","BT05B-4","BT08A-1","BT08A-2","BT08A-3","BT08A-4","BT08B-1","BT08B-2","BT08B-3","BT08B-4","BT09A-1","BT09A-2","BT09A-3","BT09A-4","BT09B-1","BT09B-2","BT09B-3","BT09B-4","BT10A-1","BT10A-2","BT10A-3","BT10A-4","BT10B-1","BT10B-2","BT10B-3","BT10B-4"]
 STEEPEST = ["BT11A-1","BT11A-2","BT11A-3","BT11A-4","BT11B-1","BT11B-2","BT11B-3","BT11B-4","BT12A-1","BT12A-2","BT12A-3","BT12A-4","BT12B-1","BT12B-2","BT12B-3","BT12B-4","BT13A-1","BT13A-2","BT13A-3","BT13A-4","BT13B-1","BT13B-2","BT13B-3","BT13B-4","BT14A-1","BT14A-2","BT14A-3","BT14A-4","BT14B-1","BT14B-2","BT14B-3","BT14B-4","BT15A-1","BT15A-2","BT15A-3","BT15A-4","BT15B-1","BT15B-2","BT15B-3","BT15B-4"]
 
@@ -164,10 +164,10 @@ def powerCurve(f, alpha):
 #     item.set_ylim(-10,510)
 #     item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
 #     if n in [0,4,8,12]:
-#         item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+#         item.set_ylabel(r'$\langle r^{2} \rangle \; (cm^{2})$')
 #         item.set_yticks([250,500])
 #     if n in [12,13,14,15]:
-#         item.set_xlabel(r'$\tau$')
+#         item.set_xlabel(r'$\tau \; (s)$')
 #         item.set_xticks([0, 250, 500])
 #
 # fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
@@ -180,20 +180,20 @@ def powerCurve(f, alpha):
 #     n += 1
 # plt.show()
 # """-end----------figure: MSD BRANCHES 16 BEES--------------------------------"""
-#
+
 """-begin--------function: calculate TSMD------------------------------------"""
 def MSD_temporal(item):
     x,y = X_remove_NaN(item),Y_remove_NaN(item)
     MSD = []
     length = len(x)
-    for tau in range(1, length):
+    for tau in range(0, length):
         MSD_tau = 0
         for t in range(0, (length-tau)):
             MSD_tau += (x[t+tau]-x[t])**2 + (y[t+tau]-y[t])**2
         MSD.append(MSD_tau/(length-tau))
     return MSD
 """-end-----------function: calculate TSMD-----------------------------------"""
-#
+
 # """-begin--------figure: TSMD 16 BEES/LINEAR PLOT----------------------------"""
 # fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
 # itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4, WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
@@ -215,11 +215,11 @@ def MSD_temporal(item):
 #     if n==0:
 #         item.legend(loc='center right')
 #     if n==0 or n==4 or n==8 or n==12:
-#         item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+#         item.set_ylabel(r'$\langle r^{2} \rangle \; (cm^{2})$')
 #         item.set_yticks([0.1,3000])
 #         #item.set_yticks([1, 1000])
 #     if n==12 or n==13 or n==14 or n==15:
-#         item.set_xlabel(r'$\tau$')
+#         item.set_xlabel(r'$\tau \; (s)$')
 #         item.set_xticks([0, 600, 1200])
 #     n+=1
 #     item.text(400, 3500, r'$m= $' + str(round(popt[1], 3)))
@@ -272,31 +272,31 @@ def MSD_temporal(item):
 #     if n in [0,1,2,3]:
 #         item.set_ylim(0.001,4000)
 #         item.annotate(r'$v = $'+ str(round(popt_poly[1],3)), xy=(0.1,0.7), xycoords='axes fraction', fontsize=10)
-#         item.annotate(r'$\alpha = $'+ str(round(popt_power[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+#         item.annotate(r'$\alpha_{K} = $'+ str(round(popt_power[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
 #         item.annotate(r'$K_{\alpha} = $'+ str(round(popt_power[2],3)), xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
 #     if n in [4,5,6,7]:
 #         item.annotate(r'$v = $'+ str(round(popt_poly[1],3)), xy=(0.1,0.7), xycoords='axes fraction', fontsize=10)
-#         item.annotate(r'$\alpha = $'+ str(round(popt_power[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+#         item.annotate(r'$\alpha_{K} = $'+ str(round(popt_power[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
 #         item.annotate(r'$K_{\alpha} = $'+ str(round(popt_power[2],3)), xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
 #     if n in [8,9,10,11,12,13,14,15]:
 #         item.annotate(r'$v = $'+ str(round(popt_poly[1],3)), xy=(0.1,0.05), xycoords='axes fraction', fontsize=10)
-#         item.annotate(r'$\alpha = $'+ str(round(popt_power[0],3)), xy=(0.1,0.25), xycoords='axes fraction', fontsize=10)
+#         item.annotate(r'$\alpha_{K} = $'+ str(round(popt_power[0],3)), xy=(0.1,0.25), xycoords='axes fraction', fontsize=10)
 #         item.annotate(r'$K_{\alpha} = $'+ str(round(popt_power[2],3)), xy=(0.1,0.15), xycoords='axes fraction', fontsize=10)
 #     if n == 0:
-#         item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+#         item.set_ylabel(r'$\langle r^{2} \rangle \; (cm^{2})$')
 #         item.set_yticks([10**(-3),10**(-1),10**(1),10**(3)])
 #     if n in [4,8,12]:
-#         item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+#         item.set_ylabel(r'$\langle r^{2} \rangle \; (cm^{2})$')
 #         item.set_yticks([10**(-1),10**(1),10**(3)])
 #         #item.set_yticks([1, 1000])
 #     if n in [12,13,14,15]:
-#         item.set_xlabel(r'$\tau$')
+#         item.set_xlabel(r'$\tau \; (s)$')
 #         item.set_xticks([10**(-3),10**(-1),10**(1),10**(3)])
 #     n+=1
 #     item.set_xlim(1,1200)
 # plt.show()
 # """-end------------figure: TSMD DIFFERENT FITS 16 BEES/LOGLOG PLOT-----------"""
-#
+
 # """-begin----------figure: TSMD TWO FITS ALL BEES/LOGLOG PLOT----------------"""
 # inter_list = []
 # exp_list = []
@@ -317,12 +317,12 @@ def MSD_temporal(item):
 # std_inter = np.std(inter_list)
 # mean_inter = np.mean(inter_list)
 # mean_exp = np.mean(exp_list)
-# plt.plot(listx, (listx/listx) * mean_inter, color='red', alpha=0.8, linewidth=1.3, linestyle='dotted')
-# plt.plot(listx, listx**mean_exp, color='blue', alpha=0.8, linewidth=1.1)
-# plt.annotate(r'$m = $'+ str(round(mean_inter,3)), xy=(0.05,0.85), xycoords='axes fraction', fontsize=10)
-# plt.annotate(r'$\alpha = $'+ str(round(mean_exp,3)), xy=(0.05,0.9), xycoords='axes fraction', fontsize=10)
-# plt.xlabel(r'$\tau$')
-# plt.ylabel(r'$\langle r^{2}(\tau) \rangle$')
+# plt.plot(listx, (listx/listx) * mean_inter, color='red', alpha=0.8, linewidth=1.8, linestyle='dotted')
+# plt.plot(listx, listx**mean_exp, color='blue', alpha=0.8, linewidth=1.8)
+# plt.annotate(r'$I = $'+ str(round(mean_inter,3)), xy=(0.05,0.85), xycoords='axes fraction', fontsize=10)
+# plt.annotate(r'$\alpha_{K} = $'+ str(round(mean_exp,3)), xy=(0.05,0.9), xycoords='axes fraction', fontsize=10)
+# plt.xlabel(r'$\tau \; (s)$')
+# plt.ylabel(r'$\langle r^{2} \rangle \; (cm^{2})$')
 # plt.show()
 # """-end----------figure: TSMD TWO FITS ALL BEES/LOGLOG PLOT----------------"""
 
@@ -367,15 +367,15 @@ def calc_vel_sw(item):
 #     std_walk = np.std(calc_vel_sw(Well_Behaved[n])[0], ddof=1)
 #     mean_walk = np.mean(calc_vel_sw(Well_Behaved[n])[0])
 #     std_stop = np.std(calc_vel_sw(Well_Behaved[n])[1], ddof=1)
-#     mean_stop = np.mean(calc_vel_sw(testbee)[1]) #0
+#     mean_stop = np.mean(calc_vel_sw(Well_Behaved[n])[1]) #0
 #     domain = np.linspace(0, 6)
 #     item.set_xticks([])
 #     item.set_yticks([])
 #     item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
 #     item.plot(domain, norm.pdf(domain, mean_walk, std_walk), color='black', linestyle='dashed')
 #     item.plot(domain, norm.pdf(domain, mean_stop, std_stop), color='red', linestyle='dashed')
-#     item.annotate(r'$\mu \approx $'+ str(round(mean_walk, 3)) + ' ' + r'$cm/s$', xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
-#     item.annotate(r'$\sigma \approx $'+ str(round(std_walk, 3)) + ' ' + r'$cm/s$', xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
+#     item.annotate(r'$\mu \approx $'+ str(round(mean_walk, 3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+#     item.annotate(r'$\sigma \approx $'+ str(round(std_walk, 3)), xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
 #     if n in [0,4,8,12]:
 #         item.set_ylabel(r'$counts$')
 #         item.set_yticks([0,5])
@@ -433,8 +433,10 @@ def S(w, D, coupling_a):
 #     end = 2 * np.pi / 2
 #     omega = np.linspace(start, end, length)
 #     popt, pcov = curve_fit(S, omega, psd_test)
+#     popt_pow, pcov_pow = curve_fit(powerCurve, omega, psd_test)
 #     item.plot(omega, psd_test, color='black', alpha=0.5, label='experiment')
 #     item.plot(omega, S(omega, popt[0], popt[1]), color='black', linestyle='dashdot', label='model fit')
+#     item.plot(omega, powerCurve(omega, popt_pow[0]), color='red', linestyle='dotted', label='power law fit')
 #     item.set_xscale('log')
 #     item.set_yscale('log')
 #     item.set_xlim(0.001,np.pi)
@@ -442,13 +444,14 @@ def S(w, D, coupling_a):
 #     item.set_xticks([])
 #     item.set_yticks([])
 #     item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
-#     item.annotate(r'$D_{v}=$'+ str(round(popt[0], 4)), xy=(0.05,0.11),xycoords='axes fraction', fontsize=10)
-#     item.annotate(r'$a_{v}=$'+ str(round(popt[1], 4)), xy=(0.05,0.05),xycoords='axes fraction', fontsize=10)
+#     item.annotate(r'$D_{v}=$'+ str(round(popt[0], 4)), xy=(0.05,0.17),xycoords='axes fraction', fontsize=10)
+#     item.annotate(r'$a_{v}=$'+ str(round(popt[1], 4)), xy=(0.05,0.11),xycoords='axes fraction', fontsize=10)
+#     item.annotate(r'$\alpha_{pow}=$'+ str(round(popt_pow[0], 4)), xy=(0.05,0.05),xycoords='axes fraction', fontsize=10)
 #     if n in [0,4,8,12]:
-#         item.set_ylabel(r'$S_{v}(\omega)$')
+#         item.set_ylabel(r'$S_{v} \; (cm^{2}/s)$')
 #         item.set_yticks([10**(-2), 10**0, 10**2])
 #     if n in [12,13,14,15]:
-#         item.set_xlabel(r'$\omega$')
+#         item.set_xlabel(r'$\omega \; (1/s)$')
 #         item.set_xticks([10**(-2),10**(-1), 10**0])
 #     n += 1
 # plt.show()
@@ -554,45 +557,45 @@ def PSD_theta(item):
 #     if n==0:
 #         q = 1
 #     if n in [0,4,8,12]:
-#         item.set_ylabel(r'$S_{\theta}(\omega)$')
+#         item.set_ylabel(r'$S_{\theta} \; (rad^{2}s)$')
 #         item.set_yticks([10**(-2),10**(-0),10**(2),10**(4), 10**(6)])
 #     if n in [12,13,14,15]:
-#         item.set_xlabel(r'$\omega$')
+#         item.set_xlabel(r'$\omega \; (1/s)$')
 #         item.set_xticks([10**(-2), 10**(-1), 10**(0)])
 #     n += 1
 # plt.show()
 # """-end----------figure: PSD OF ANGLE THETA 16 BEES--------------------------"""
-
-# """-begin--------figure: A THETA OVER D THETA ALL BEES/LOGLIN----------------"""
-# ALL_a_list = []
-# ALL_D_r_list = []
-# for testbee in head:
-#     psd_test = PSD_theta(testbee)
-#     length = len(psd_test)
-#     start = 0.001
-#     end = np.pi
-#     omega = np.linspace(start, end, length)
-#     popt, pcov = curve_fit(S, omega, psd_test)
-#     ALL_D_r_list.append(popt[0])
-#     ALL_a_list.append(np.abs(popt[1]))
-# plt.scatter(ALL_D_r_list, ALL_a_list, color='black', alpha=0.5)
-# plt.xscale('log')
-# plt.ylabel(r'$a_{\theta}$')
-# plt.xlabel(r'$D_{\theta}$')
-# n=0
-# for testbee in head:
-#     if testbee in Well_Behaved:
-#         if testbee in ["BT06A-2", "BT06A-3", "BT02B-2", "BT02B-1"]:
-#             plt.scatter(ALL_D_r_list[n], ALL_a_list[n], color='blue', alpha=1, marker='X', s=70)#, label=r'$IB_{1-4}$')
-#         if testbee in ["BT09A-2", "BT09B-2", "BT09B-4", "BT12B-2"]:
-#             plt.scatter(ALL_D_r_list[n], ALL_a_list[n], color='red', alpha=1, marker='X', s=70)#, label=r'$GF_{1-4}$')
-#         if testbee in ["BT04B-3", "BT09B-1", "BT12B-1", "BT13B-3"]:
-#             plt.scatter(ALL_D_r_list[n], ALL_a_list[n], color='blue', alpha=1, marker='P', s=70)#, label=r'$WF_{1-4}$')
-#         if testbee in ["BT03A-1", "BT06B-1", "BT13A-3", "BT12A-1"]:
-#             plt.scatter(ALL_D_r_list[n], ALL_a_list[n], color='red', alpha=1, marker='P', s=70)#, label=r'$RW_{1-4}$')
-#     n+=1
-# plt.show()
-# """-end----------figure: A THETA OVER D THETA ALL BEES/LOGLIN----------------"""
+#
+"""-begin--------figure: A THETA OVER D THETA ALL BEES/LOGLIN----------------"""
+ALL_a_list = []
+ALL_D_r_list = []
+for testbee in head:
+    psd_test = PSD_theta(testbee)
+    length = len(psd_test)
+    start = 0.001
+    end = np.pi
+    omega = np.linspace(start, end, length)
+    popt, pcov = curve_fit(S, omega, psd_test)
+    ALL_D_r_list.append(popt[0])
+    ALL_a_list.append(np.abs(popt[1]))
+plt.scatter(ALL_D_r_list, ALL_a_list, color='black', alpha=0.5)
+plt.xscale('log')
+plt.ylabel(r'$a_{\theta} \; (1/s)$')
+plt.xlabel(r'$D_{\theta} \; (rad^{2}/s)$')
+n=0
+for testbee in head:
+    if testbee in Well_Behaved:
+        if testbee in ["BT06A-2", "BT06A-3", "BT02B-2", "BT02B-1"]:
+            plt.scatter(ALL_D_r_list[n], ALL_a_list[n], color='blue', alpha=1, marker='X', s=70)#, label=r'$IB_{1-4}$')
+        if testbee in ["BT09A-2", "BT09B-2", "BT09B-4", "BT12B-2"]:
+            plt.scatter(ALL_D_r_list[n], ALL_a_list[n], color='red', alpha=1, marker='X', s=70)#, label=r'$GF_{1-4}$')
+        if testbee in ["BT04B-3", "BT09B-1", "BT12B-1", "BT13B-3"]:
+            plt.scatter(ALL_D_r_list[n], ALL_a_list[n], color='blue', alpha=1, marker='P', s=70)#, label=r'$WF_{1-4}$')
+        if testbee in ["BT03A-1", "BT06B-1", "BT13A-3", "BT12A-1"]:
+            plt.scatter(ALL_D_r_list[n], ALL_a_list[n], color='red', alpha=1, marker='P', s=70)#, label=r'$RW_{1-4}$')
+    n+=1
+plt.show()
+"""-end----------figure: A THETA OVER D THETA ALL BEES/LOGLIN----------------"""
 
 """-begin------function: map velocity as shot noise--------------------------"""
 def calc_vel_shot(item):
@@ -610,11 +613,11 @@ def calc_vel_shot(item):
         list_vel.append(velocity)
     return list_vel, list_shot
 """-end--------function: map velocity as shot noise--------------------------"""
-
+#
 # """-begin------figures: RTS VELOCITIES---------------------------------------"""
 # first_squad = [IB_1, IB_2, IB_3, IB_4, GF_1, GF_2, GF_3, GF_4]
 # second_squad = [WF_1, WF_2, WF_3, WF_4, RW_1, RW_2, RW_3, RW_4]
-# fig, ((IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4)) = plt.subplots(8, 1, figsize=(10,10))
+# fig, ((IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4)) = plt.subplots(8, 1, figsize=(8,10))
 # itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4]
 # type = [r'$IB_1$', r'$IB_2$', r'$IB_3$', r'$IB_4$', r'$GF_1$', r'$GF_2$', r'$GF_3$', r'$GF_4$']
 # m=0
@@ -626,7 +629,7 @@ def calc_vel_shot(item):
 #     item.plot(shot, color=color_RTS)
 #     ax2 = item.twinx()
 #     color_vel = 'tab:blue'
-#     ax2.set_ylabel('v'+r'$ [cm/s]$', color=color_vel, fontdict=dict(weight='bold'))
+#     ax2.set_ylabel('v '+r'$(cm/s)$', color=color_vel, fontdict=dict(weight='bold'))
 #     ax2.plot(vel, color=color_vel)
 #     ax2.set_ylim(-0.2,6.2)
 #     ax2.set_yticks([0,3,6])
@@ -637,11 +640,11 @@ def calc_vel_shot(item):
 #     item.set_yticks([0,1])
 #     if item == GF4:
 #         item.set_xticks([0,1200])
-#         item.set_xlabel('time '+r'$ [s]$')
+#         item.set_xlabel('time '+r'$(s)$')
 #     item.annotate(type[m], xy=(0.96,0.8),xycoords='axes fraction', fontsize=10)
 #     m+=1
 # plt.show()
-# fig, ((WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4)) = plt.subplots(8, 1, figsize=(10,10))
+# fig, ((WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4)) = plt.subplots(8, 1, figsize=(8,10))
 # itemize = [WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
 # type = [r'$WF_1$', r'$WF_2$', r'$WF_3$', r'$WF_4$', r'$RW_1$', r'$RW_2$', r'$RW_3$', r'$RW_4$']
 # n=0
@@ -653,7 +656,7 @@ def calc_vel_shot(item):
 #     item.plot(shot, color=color_RTS)
 #     ax2 = item.twinx()
 #     color_vel = 'tab:blue'
-#     ax2.set_ylabel('v'+r'$ [cm/s]$', color=color_vel, fontdict=dict(weight='bold'))
+#     ax2.set_ylabel('v '+r'$(cm/s)$', color=color_vel, fontdict=dict(weight='bold'))
 #     ax2.plot(vel, color=color_vel)
 #     ax2.set_ylim(-0.2,6.2)
 #     ax2.set_yticks([0,3,6])
@@ -664,8 +667,8 @@ def calc_vel_shot(item):
 #     item.set_yticks([0,1])
 #     if item == RW4:
 #         item.set_xticks([0,1200])
-#         item.set_xlabel('time '+r'$ [s]$')
-#     item.annotate(type[n], xy=(0.96,0.8),xycoords='axes fraction', fontsize=10)
+#         item.set_xlabel('time '+r'$(s)$')
+#     item.annotate(type[n], xy=(0.95,0.8),xycoords='axes fraction', fontsize=10)
 #     n+=1
 # plt.show()
 # """-end--------figures: RTS VELOCITIES---------------------------------------"""
@@ -755,14 +758,14 @@ def calc_dur_stop(item):
 # popt_stop, pcov_stop = curve_fit(myCurve, ALL_TEMPS_at_stop, ALL_STOPS_at_dT, maxfev = 200000, p0=(4,4))
 # popt_walk, pcov_walk = curve_fit(myCurve, ALL_TEMPS_at_walk, ALL_WALKS_at_dT, maxfev = 200000, p0=(1,1))
 # x = np.linspace(0,10)
-# subfigure_stop.plot(x, stop[0]*x+stop[1], color='blue', linewidth=1.1)
-# subfigure_stop.plot(x, myCurve(x, *popt_stop), linewidth=2, color='blue', linestyle='dashed')#, linewidth=1)
-# subfigure_walk.plot(x, walk[0]*x+walk[1], color='red', linewidth=1.1)
-# subfigure_walk.plot(x, myCurve(x, *popt_walk), linewidth=2, color='red', linestyle='dashed')#, linewidth=1)
-# subfigure_stop.set_xlabel(r'$\Delta T \,[°C]$')
-# subfigure_stop.set_ylabel("stop duration " r'$t_{s} \, [s]$')
-# subfigure_walk.set_xlabel(r'$\Delta T \,[°C]$')
-# subfigure_walk.set_ylabel("walk duration " r'$t_{w} \, [s]$')
+# subfigure_stop.plot(x, myCurve(x, *popt_stop), linewidth=2, color='dodgerblue', linestyle='dashed')#, linewidth=1)
+# subfigure_stop.plot(x, stop[0]*x+stop[1], color='blue', linewidth=2)
+# subfigure_walk.plot(x, myCurve(x, *popt_walk), linewidth=2, color='firebrick', linestyle='dashed')#, linewidth=1)
+# subfigure_walk.plot(x, walk[0]*x+walk[1], color='red', linewidth=2)
+# subfigure_stop.set_xlabel(r'$\Delta T \; (°C)$')
+# subfigure_stop.set_ylabel("stop duration " r'$t_{s} \; (s)$')
+# subfigure_walk.set_xlabel(r'$\Delta T \; (°C)$')
+# subfigure_walk.set_ylabel("walk duration " r'$t_{w} \; (s)$')
 # plt.show()
 # """-end--------figure: STOPPING AND WALKING DURATIONS OVER TEMPERATURE-------"""
 
@@ -798,7 +801,7 @@ def calc_dur_stop_2(item):
                 #mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_max))/np.abs(T_max - T_min))
     return all_stop_durations_2, mean_delta_stop_temp_2
 """-end--------function: calculate stopping duration v2----------------------"""
-
+#
 # """-begin------figure: STOPPING OVER TEMPERATURE 2X2 GROUPED-----------------"""
 # fig, ((IB1,GF1),(WF1,RW1)) = plt.subplots(2, 2, figsize=(7,7))
 # n_IB=0
@@ -884,7 +887,7 @@ def calc_dur_stop_2(item):
 #
 # plt.show()
 # """-end--------figure: STOPPING OVER TEMPERATURE 2X2 GROUPED-----------------"""
-
+#
 # """-begin--------figure: STOPPING OVER TEMPERATURE 16 BEES-------------------"""
 # fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
 # itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4, WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
@@ -902,6 +905,7 @@ def calc_dur_stop_2(item):
 #     item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
 #     item.set_xticks([])
 #     item.set_yticks([])
+#
 #     if item != IB2:
 #         # popt1, pcov1 = curve_fit(myCurve1, stop_temp, stop_durations, maxfev = 200000, p0=(0,0))
 #         # item.plot(myCurve1(xspace, *popt1), color="red", linestyle='dashdot', label='t/(1+bx)')
@@ -909,18 +913,24 @@ def calc_dur_stop_2(item):
 #         item.plot(myCurve2(np.linspace(0,10,11), *popt2), color="red", linestyle='dotted', label='t*e^(-bx)')
 #         # popt3, pcov3 = curve_fit(myCurve3, stop_temp, stop_durations, maxfev = 200000, p0=(0,0,0))
 #         # item.plot(myCurve3(np.linspace(0,100,100), *popt3), color="red", linestyle='dashed', label='t*(bx)^g')
+#     if item in [IB1, IB3, IB4, GF1, GF2 ,GF3, GF4, WF1, WF2, WF3, RW1, RW2, RW4]:
+#         item.annotate(r'$\tau=$'+ "{res:.3E}".format(res=popt2[0]), xy=(0.45,0.21),xycoords='axes fraction', fontsize=10)
+#         item.annotate(r'$\beta=$'+ str(round(popt2[1], 3)), xy=(0.45,0.14),xycoords='axes fraction', fontsize=10)
+#     if item in [WF4, RW3]:
+#         item.annotate(r'$\tau=$'+ "{res:.3E}".format(res=popt2[0]), xy=(0.05,0.35),xycoords='axes fraction', fontsize=10)
+#         item.annotate(r'$\beta=$'+ str(round(popt2[1], 3)), xy=(0.05,0.28),xycoords='axes fraction', fontsize=10)
 #     if item == IB2:
 #         item.annotate('invalid', xy=(0.35,0.45),xycoords='axes fraction', color='red', fontsize=12)
 #     if item in [RW1, RW2, RW3, RW4]:
 #         item.set_xticks([0,5,10])
-#         item.set_xlabel(r'$\Delta T (\degree C)$')
+#         item.set_xlabel(r'$\Delta T \; (\degree C)$')
 #     if item in [IB1, GF1, WF1, RW1]:
 #         item.set_yticks([0,600,1200])
-#         item.set_ylabel(r'$t_{s}(s)$')
+#         item.set_ylabel(r'$t_{s} \; (s)$')
 #     n += 1
 # plt.show()
 # """-end----------figure: STOPPING OVER TEMPERATURE 16 BEES-------------------"""
-
+#
 """-begin------function: calculate probability at a temperature--------------"""
 def probability_T(item):
     T_dataset_wo_NAN = T_remove_NaN(item)
@@ -958,7 +968,7 @@ def calc_vel_at_noonly_stopping(item):
             list_vel_ONLY_stopping.append(list_vel[tt])
     return list_vel_NO_stopping, list_vel_ONLY_stopping
 """-end--------function: calculate velocity at stopping events---------------"""
-
+#
 # """-begin--------figure: PSD OF RTS 16 BEES----------------------------------"""
 # fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
 # fig.set_tight_layout(True)
@@ -1004,13 +1014,13 @@ def calc_vel_at_noonly_stopping(item):
 #         item.plot(x_high, y_high, marker="^", color='red')
 #         alpha = np.abs(np.log10(y_high/y_low))
 #         item.plot(omega, powerCurve(omega, alpha), linestyle='dotted', color='red')
-#         item.annotate(r'$\alpha_{1} = $' + str(round(alpha,2)) , xy=(0.05,0.9),xycoords='axes fraction', fontsize=12)
+#         item.annotate(r'$\alpha_{RTS} = $' + str(round(alpha,2)) , xy=(0.05,0.9),xycoords='axes fraction', fontsize=12)
 #
-#         #high_omega = np.linspace(0.15,1.5)
-#         high_omega = np.linspace(0.015,1.5)
-#         popt_pow, pcov_pow = curve_fit(powerCurve, high_omega, S(high_omega, mean_velocity, mean_t1, data_entries, dT), maxfev=200000, p0=(0))
-#         item.plot(omega, powerCurve(high_omega, *popt_pow), linestyle='dashed', color='red')
-#         item.annotate(r'$\alpha_{2} = $' + str(round(popt_pow[0],2)) , xy=(0.05,0.8),xycoords='axes fraction', fontsize=12)
+#         # #high_omega = np.linspace(0.15,1.5)
+#         # high_omega = np.linspace(0.015,1.5)
+#         # popt_pow, pcov_pow = curve_fit(powerCurve, high_omega, S(high_omega, mean_velocity, mean_t1, data_entries, dT), maxfev=200000, p0=(0))
+#         # item.plot(omega, powerCurve(high_omega, *popt_pow), linestyle='dashed', color='red')
+#         # item.annotate(r'$\alpha_{2} = $' + str(round(popt_pow[0],2)) , xy=(0.05,0.8),xycoords='axes fraction', fontsize=10)
 #     else:
 #         item.annotate('invalid', xy=(0.35,0.45),xycoords='axes fraction', color='red', fontsize=12)
 #         item.plot(omega_new, vel_PSD, color='black', alpha=0.5)
@@ -1021,15 +1031,15 @@ def calc_vel_at_noonly_stopping(item):
 #     item.set_xticks([])
 #     item.set_yticks([])
 #     if item in [IB1, GF1, WF1, RW1]:
-#         item.set_ylabel(r'$S_{RTS}(\omega)$')
+#         item.set_ylabel(r'$S_{RTS} \; (cm^{2}/s)$')
 #         item.set_yticks([10 ** (-2), 10**(0), 10 ** (2)])
 #     if item in [RW1, RW2, RW3, RW4]:
-#         item.set_xlabel(r'$\omega$')
+#         item.set_xlabel(r'$\omega \; (1/s)$')
 #         item.set_xticks([10 ** (-2), 10**(-1), 10 ** 0])
 #     n += 1
 # plt.show()
 # """-end----------figure: PSD OF RTS 16 BEES----------------------------------"""
-
+#
 """-begin------function: calculate gradient----------------------------------"""
 def calc_delta_T(item):
     calc_dataset = T_remove_NaN(item)
@@ -1038,38 +1048,12 @@ def calc_delta_T(item):
         delta_T.append(calc_dataset[i + 1] - calc_dataset[i])
     return delta_T
 """-end--------function: calculate gradient----------------------------------"""
-
+#
 # """-begin------figure: MEAN BIN VELOCITY OVER DELTA TEMPERATURE ALL BEES-----"""
 # T_master_bin = np.arange(27, 37, 0.1)
 # v_mean_list = np.zeros(100)
 # m_list = np.zeros(100)
-# for testbee in head:
-#     vel = calc_vel(testbee)
-#     T = T_remove_NaN(testbee)
-#     plt.scatter(T, vel, color='black',  alpha=0.01)
-#     T_bin = np.arange(min(T), max(T), 0.1)
-#     bin_vel_LIST = []
-#     for i in T_bin:
-#         bin_vel = 0
-#         n = 0.000001
-#         for ii in range(len(vel)):
-#             if np.abs(T[ii] - i) < 0.1:
-#                 bin_vel += vel[ii]
-#                 n += 1
-#         bin_vel_LIST.append(bin_vel/n)
-#     for j in range(len(T_master_bin)):
-#         for jj in range(len(T_bin)):
-#             if np.abs(T_master_bin[j]-T_bin[jj]) < 0.1:
-#                 v_mean_list[j] += bin_vel_LIST[jj]
-#                 m_list[j] += 1
-# for v in range(len(v_mean_list)):
-#     v_mean_list[v] /= m_list[v]
-# plt.plot(T_master_bin, v_mean_list, label="all experiments", color="slategrey", linewidth=2)
-#
-# T_master_bin = np.arange(27, 37, 0.1)
-# v_mean_list = np.zeros(100)
-# m_list = np.zeros(100)
-# for testbee in NARROW:
+# for testbee in FLAT:
 #     vel = calc_vel(testbee)
 #     T = T_remove_NaN(testbee)
 #     T_bin = np.arange(min(T), max(T), 0.1)
@@ -1089,7 +1073,7 @@ def calc_delta_T(item):
 #                 m_list[j] += 1
 # for v in range(len(v_mean_list)):
 #     v_mean_list[v] /= m_list[v]
-# plt.plot(T_master_bin, v_mean_list, label="narrow gradient", color="black", linestyle="dotted")
+# plt.plot(T_master_bin, v_mean_list, label="flat gradient", color="black", linestyle="dotted")
 #
 # T_master_bin = np.arange(27, 37, 0.1)
 # v_mean_list = np.zeros(100)
@@ -1192,9 +1176,36 @@ def calc_delta_T(item):
 # plt.plot(T_master_bin, v_mean_list, label="control (36-36)", color="red", linestyle=(0, (3, 1, 1, 1)))
 # plt.xlim(28,36)
 #
+# T_master_bin = np.arange(27, 37, 0.1)
+# v_mean_list = np.zeros(100)
+# m_list = np.zeros(100)
+# for testbee in head:
+#     vel = calc_vel(testbee)
+#     T = T_remove_NaN(testbee)
+#     plt.scatter(T, vel, color='black',  alpha=0.01)
+#     T_bin = np.arange(min(T), max(T), 0.1)
+#     bin_vel_LIST = []
+#     for i in T_bin:
+#         bin_vel = 0
+#         n = 0.000001
+#         for ii in range(len(vel)):
+#             if np.abs(T[ii] - i) < 0.1:
+#                 bin_vel += vel[ii]
+#                 n += 1
+#         bin_vel_LIST.append(bin_vel/n)
+#     for j in range(len(T_master_bin)):
+#         for jj in range(len(T_bin)):
+#             if np.abs(T_master_bin[j]-T_bin[jj]) < 0.1:
+#                 v_mean_list[j] += bin_vel_LIST[jj]
+#                 m_list[j] += 1
+# for v in range(len(v_mean_list)):
+#     v_mean_list[v] /= m_list[v]
+# plt.plot(T_master_bin, v_mean_list, label="all experiments", color="slategrey", linewidth=2)
+#
+#
 # plt.ylim(0,4)
-# plt.xlabel('Temperature[°C]')
-# plt.ylabel('velocity[cm/s]')
+# plt.xlabel('Temperature' + r'$(°C)$')
+# plt.ylabel('velocity' + r'$(cm/s)$')
 # plt.legend(loc="upper right")
 # plt.show()
-# """-begin------figure: MEAN BIN VELOCITY OVER DELTA TEMPERATURE ALL BEES-----"""
+# """-end------figure: MEAN BIN VELOCITY OVER DELTA TEMPERATURE ALL BEES-----"""

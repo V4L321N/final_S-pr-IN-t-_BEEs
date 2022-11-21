@@ -75,10 +75,10 @@ def T_remove_NaN(item):
 def probability_T(item):
     T_dataset_wo_NAN = T_remove_NaN(item)
     T_minmax_data = pd.DataFrame(data=pd.read_csv("data_bee_types/temperature_variables.csv"), columns=[item])
-    T_ideal = T_minmax_data.iloc[1].item()
-    prob_dataset = []
+    T_max = T_minmax_data.iloc[1].item()
+    #prob_dataset = []
     for T in range(len(T_dataset_wo_NAN)):
-        prob_dataset.append(np.abs(T_dataset_wo_NAN[T] - T_ideal))
+        prob_dataset.append(np.abs(T_dataset_wo_NAN[T] - T_max))
     return prob_dataset
 """-end--------calculate probability for spending time at a temperature-------------------"""
 
@@ -108,12 +108,14 @@ def calc_dur_stop(item):
             stop_temperatures.append(T_dataset_wo_NAN[v])
             if list_vel[v+1] > stop_vel:
                 all_stop_durations.append(duration_stop)
-                mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_min)/(T_max - T_min)))
+                mean_delta_stop_temp.append(np.abs(np.mean(stop_temperatures) - T_max))
+                #mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_max))/np.abs(T_max - T_min))
                 duration_walk = 0
                 walk_temperatures = []
             elif v == len(list_vel[:-2]):
                 all_stop_durations.append(duration_stop)
-                mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_min)/(T_max - T_min)))
+                mean_delta_stop_temp.append(np.abs(np.mean(stop_temperatures) - T_max))
+                #mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_max))/np.abs(T_max - T_min))
     return all_stop_durations, mean_delta_stop_temp
 #print(calc_vel(testbee))
 #plt.show()
@@ -135,9 +137,9 @@ def calc_dur_walk(item):
 
     walk_vel = 0.4
     duration_walk = 0
-    all_walk_durations = []
+    #all_walk_durations = []
     walk_temperatures = []
-    mean_delta_walk_temp = []
+    #mean_delta_walk_temp = []
     for v in range(len(list_vel[:-1])):
         if list_vel[v] >= walk_vel:
             duration_walk += 1
@@ -150,7 +152,6 @@ def calc_dur_walk(item):
             elif v == len(list_vel[:-2]):
                 all_walk_durations.append(duration_walk)
                 mean_delta_walk_temp.append(np.abs(np.mean(walk_temperatures) - T_ideal))
-
     return all_walk_durations, mean_delta_walk_temp
 #print(calc_vel(testbee))
 #plt.show()
@@ -224,15 +225,22 @@ def PSD(item):
         PSD_list.append(absolute.real)
     return PSD_list
 
-def RTS_PSD(item):
 
-    return 0
 
 def myPoly(x, a, b, c):
     return a * x**2 + b * x +c
 
 def fit_function(x, A, beta, B, mu, sigma):
     return (np.sqrt(A**2) * np.exp(-x/beta) + np.sqrt(B**2) * np.exp(-1.0 * (x - mu)**2 / (2 * sigma**2)))
+
+def myCurve1(x,tau,beta):
+    return  tau / (1 + (beta * x))#tau * np.exp(-beta * x) #
+
+def myCurve2(x,tau,beta):
+    return  tau * np.exp(-beta * x) #
+
+def myCurve3(x,tau,beta,gamma):
+    return tau * (beta * x) ** gamma #tau / (1 + (beta * x)) #
 
 # def PSD(item):
 #     PSD_list = []
@@ -252,16 +260,58 @@ n_IB=0
 fig.set_tight_layout(True)
 all_stop_durations = []
 mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeIB:
+all_walk_durations = []
+mean_delta_walk_temp = []
+prob_dataset = []
+
+for item in range(0,4,1):#itemizeIB:
     calc_dur_stop(Well_Behaved[n_IB])
+    probability_T(Well_Behaved[n_IB])
+    calc_dur_walk(Well_Behaved[n_IB])
     n_IB += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
-IB1.set_ylim(-10,1300)
-IB1.set_xlim(-0.01,1.01)
-IB1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-IB1.scatter(mean_delta_stop_temp, all_stop_durations)
+
+mean_t1 = np.mean(all_walk_durations)
+start = 0
+end = 6
+dT = 0.1
+v_IB = 0.607
+bins = np.arange(start, end, dT)
+rangeT = np.linspace(start, end, 59)
+#nr_bins = 61
+#bins = np.linspace(start, end, nr_bins)
+data_entries_IB, bins_IB = np.histogram(prob_dataset, bins=bins, range=(start,end), density=True)
+#IB1.hist(prob_dataset, bins, density=True)
+#IB1.plot(rangeT, data_entries_IB)
+IB1.annotate(r'$IB_{1-4}$', xy=(0.73,0.9),xycoords='axes fraction', fontsize=12)
+
+#popt_stop1, pcov_stop1 = curve_fit(myCurve1, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+popt_stop2, pcov_stop2 = curve_fit(myCurve2, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+#popt_stop3, pcov_stop3 = curve_fit(myCurve3, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0,0))#, bounds=([0,0,0], [3.0, 1.0, 1.0]))
+#xspace = np.linspace(0, 10, 1000)
+#IB1.set_ylim(-10,1300)
+#IB1.set_xlim(-0.01,8.01)
+#IB1.plot(xspace, myCurve1(xspace, *popt_stop1), color='red', linewidth=1.1, linestyle='dashed', label=r'$ \tau / (1 + (\beta * \Delta T)) $')
+#IB1.plot(xspace, myCurve2(xspace, *popt_stop2), color='red', linewidth=1.1, linestyle='dashdot', label=r'$ \tau * \exp(-\beta * \Delta T) $')
+#IB1.plot(xspace, myCurve3(xspace, *popt_stop3), color='firebrick', linewidth=1.1, label=r'$ \tau * (\beta * \Delta T) ** \gamma $')
+#IB1.scatter(mean_delta_stop_temp, all_stop_durations, color="black", alpha=0.3)
+#IB1.set_ylabel(r'$t_{s}(s)$')
+
+def RTS_PSD(w):#, v_0, P, t_0, t_1, range, dT):
+    sum = 0
+    for T in np.arange(0,5.9,0.1):
+        sum += (data_entries_IB[int(round(T/0.1, 0))] * dT) / ((myCurve2(T, *popt_stop2) + 1) * ((1 / myCurve2(T, *popt_stop2) + 1 / mean_t1) ** 2 + w ** 2))
+    return v_IB ** 2 * sum
+
+omega = np.linspace(0.0001, (np.pi/2))
+IB1.set_xscale('log')
+IB1.set_yscale('log')
+IB1.set_xlim(10 ** (-2), (np.pi/2) * 10 ** 0)
+IB1.set_ylim(10 ** (-4), 10 ** 2)
+IB1.set_ylabel(r'$S_{PSD}(\omega)$')
+IB1.plot(omega, RTS_PSD(omega))
+IB1.plot(omega, (1/omega**1))
+
+
 
 GF_group_STOPS_at_dT = []
 GF_group_TEMPS_at_stop = []
@@ -269,16 +319,56 @@ n_GF=4
 fig.set_tight_layout(True)
 all_stop_durations = []
 mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeGF:
+all_walk_durations = []
+mean_delta_walk_temp = []
+prob_dataset = []
+
+for item in range(0,4,1):#itemizeGF:
     calc_dur_stop(Well_Behaved[n_GF])
+    probability_T(Well_Behaved[n_GF])
+    calc_dur_walk(Well_Behaved[n_GF])
     n_GF += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
-GF1.set_ylim(-10,1300)
-GF1.set_xlim(-0.01,1.01)
-GF1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-GF1.scatter(mean_delta_stop_temp, all_stop_durations)
+
+mean_t1 = np.mean(all_walk_durations)
+start = 0
+end = 6
+dT = 0.1
+v_GF = 1.475
+bins = np.arange(start, end, dT)
+rangeT = np.linspace(start, end, 59)
+#nr_bins = 61
+#bins = np.linspace(start, end, nr_bins)
+data_entries_GF, bins_GF = np.histogram(prob_dataset, bins=bins, range=(start,end), density=True)
+#GF1.hist(prob_dataset, bins, density=True)
+#GF1.plot(rangeT, data_entries_GF)
+GF1.annotate(r'$GF_{1-4}$', xy=(0.73,0.9),xycoords='axes fraction', fontsize=12)
+
+#popt_stop1, pcov_stop1 = curve_fit(myCurve1, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+popt_stop2, pcov_stop2 = curve_fit(myCurve2, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+#popt_stop3, pcov_stop3 = curve_fit(myCurve3, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0,0))#, bounds=([0,0,0], [3.0, 1.0, 1.0]))
+#xspace = np.linspace(0, 10, 1000)
+#GF1.set_ylim(-10,1300)
+#GF1.set_xlim(-0.01,8.01)
+#GF1.plot(xspace, myCurve1(xspace, *popt_stop1), color='red', linewidth=1.1, linestyle='dashed', label=r'$ \tau / (1 + (\beta * \Delta T)) $')
+#GF1.plot(xspace, myCurve2(xspace, *popt_stop2), color='red', linewidth=1.1, linestyle='dashdot', label=r'$ \tau * \exp(-\beta * \Delta T) $')
+#GF1.plot(xspace, myCurve3(xspace, *popt_stop3), color='firebrick', linewidth=1.1, label=r'$ \tau * (\beta * \Delta T) ** \gamma $')
+#GF1.scatter(mean_delta_stop_temp, all_stop_durations, color="black", alpha=0.3)
+#GF1.set_ylabel(r'$t_{s}(s)$')
+
+def RTS_PSD(w):#, v_0, P, t_0, t_1, range, dT):
+    sum = 0
+    for T in np.arange(0,5.9,0.1):
+        sum += (data_entries_GF[int(round(T/0.1, 0))] * dT) / ((myCurve2(T, *popt_stop2) + 1) * ((1 / myCurve2(T, *popt_stop2) + 1 / mean_t1) ** 2 + w ** 2))
+    return v_GF ** 2 * sum
+
+omega = np.linspace(0.0001, (np.pi/2))
+GF1.set_xscale('log')
+GF1.set_yscale('log')
+GF1.set_xlim(10 ** (-2), (np.pi/2) * 10 ** 0)
+GF1.set_ylim(10 ** (-4), 10 ** 2)
+GF1.plot(omega, RTS_PSD(omega))
+GF1.plot(omega, (1/omega**1))
+
 
 WF_group_STOPS_at_dT = []
 WF_group_TEMPS_at_stop = []
@@ -286,16 +376,57 @@ n_WF=8
 fig.set_tight_layout(True)
 all_stop_durations = []
 mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeWF:
+all_walk_durations = []
+mean_delta_walk_temp = []
+prob_dataset = []
+
+for item in range(0,4,1):#itemizeWF:
     calc_dur_stop(Well_Behaved[n_WF])
+    probability_T(Well_Behaved[n_WF])
+    calc_dur_walk(Well_Behaved[n_WF])
     n_WF += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
-WF1.set_ylim(-10,1300)
-WF1.set_xlim(-0.01,1.01)
-WF1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-WF1.scatter(mean_delta_stop_temp, all_stop_durations)
+
+mean_t1 = np.mean(all_walk_durations)
+start = 0
+end = 6
+dT = 0.1
+v_WF = 2.097
+bins = np.arange(start, end, dT)
+rangeT = np.linspace(start, end, 59)
+#nr_bins = 61
+#bins = np.linspace(start, end, nr_bins)
+data_entries_WF, bins_WF = np.histogram(prob_dataset, bins=bins, range=(start,end), density=True)
+#WF1.hist(prob_dataset, bins, density=True)
+#WF1.plot(rangeT, data_entries_WF)
+WF1.annotate(r'$WF_{1-4}$', xy=(0.73,0.9),xycoords='axes fraction', fontsize=12)
+
+#popt_stop1, pcov_stop1 = curve_fit(myCurve1, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+popt_stop2, pcov_stop2 = curve_fit(myCurve2, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+#popt_stop3, pcov_stop3 = curve_fit(myCurve3, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0,0))#, bounds=([0,0,0], [3.0, 1.0, 1.0]))
+#xspace = np.linspace(0, 10, 1000)
+#WF1.set_ylim(-10,1300)
+#WF1.set_xlim(-0.01,8.01)
+#WF1.plot(xspace, myCurve1(xspace, *popt_stop1), color='red', linewidth=1.1, linestyle='dashed', label=r'$ \tau / (1 + (\beta * \Delta T)) $')
+#WF1.plot(xspace, myCurve2(xspace, *popt_stop2), color='red', linewidth=1.1, linestyle='dashdot', label=r'$ \tau * \exp(-\beta * \Delta T) $')
+#WF1.plot(xspace, myCurve3(xspace, *popt_stop3), color='firebrick', linewidth=1.1, label=r'$ \tau * (\beta * \Delta T) ** \gamma $')
+#WF1.scatter(mean_delta_stop_temp, all_stop_durations, color="black", alpha=0.3)
+#WF1.set_ylabel(r'$t_{s}(s)$')
+
+def RTS_PSD(w):#, v_0, P, t_0, t_1, range, dT):
+    sum = 0
+    for T in np.arange(0,5.9,0.1):
+        sum += (data_entries_WF[int(round(T/0.1, 0))] * dT) / ((myCurve2(T, *popt_stop2) + 1) * ((1 / myCurve2(T, *popt_stop2) + 1 / mean_t1) ** 2 + w ** 2))
+    return v_WF ** 2 * sum
+
+omega = np.linspace(0.0001, (np.pi/2))
+WF1.set_xscale('log')
+WF1.set_yscale('log')
+WF1.set_xlim(10 ** (-2), (np.pi/2) * 10 ** 0)
+WF1.set_ylim(10 ** (-4), 10 ** 2)
+WF1.set_xlabel(r'$\omega$')
+WF1.set_ylabel(r'$S_{PSD}(\omega)$')
+WF1.plot(omega, RTS_PSD(omega))
+WF1.plot(omega, (1/omega**1))
 
 RW_group_STOPS_at_dT = []
 RW_group_TEMPS_at_stop = []
@@ -303,16 +434,55 @@ n_RW=12
 fig.set_tight_layout(True)
 all_stop_durations = []
 mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeRW:
+all_walk_durations = []
+mean_delta_walk_temp = []
+prob_dataset = []
+
+for item in range(0,4,1):#itemizeRW:
     calc_dur_stop(Well_Behaved[n_RW])
+    probability_T(Well_Behaved[n_RW])
+    calc_dur_walk(Well_Behaved[n_RW])
     n_RW += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
-RW1.set_ylim(-10,1300)
-RW1.set_xlim(-0.01,1.01)
-RW1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-RW1.scatter(mean_delta_stop_temp, all_stop_durations)
 
+mean_t1 = np.mean(all_walk_durations)
+start = 0
+end = 6
+dT = 0.1
+v_RW = 2.491
+bins = np.arange(start, end, dT)
+rangeT = np.linspace(start, end, 59)
+#nr_bins = 61
+#bins = np.linspace(start, end, nr_bins)
+data_entries_RW, bins_RW = np.histogram(prob_dataset, bins=bins, range=(start,end), density=True)
+#RW1.hist(prob_dataset, bins, density=True)
+#RW1.plot(rangeT, data_entries_RW)
+RW1.annotate(r'$RW_{1-4}$', xy=(0.73,0.9),xycoords='axes fraction', fontsize=12)
 
+#popt_stop1, pcov_stop1 = curve_fit(myCurve1, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+popt_stop2, pcov_stop2 = curve_fit(myCurve2, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+#popt_stop3, pcov_stop3 = curve_fit(myCurve3, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0,0))#, bounds=([0,0,0], [3.0, 1.0, 1.0]))
+#xspace = np.linspace(0, 10, 1000)
+#RW1.set_ylim(-10,1300)
+#RW1.set_xlim(-0.01,8.01)
+#RW1.plot(xspace, myCurve1(xspace, *popt_stop1), color='red', linewidth=1.1, linestyle='dashed', label=r'$ \tau / (1 + (\beta * \Delta T)) $')
+#RW1.plot(xspace, myCurve2(xspace, *popt_stop2), color='red', linewidth=1.1, linestyle='dashdot', label=r'$ \tau * \exp(-\beta * \Delta T) $')
+#RW1.plot(xspace, myCurve3(xspace, *popt_stop3), color='firebrick', linewidth=1.1, label=r'$ \tau * (\beta * \Delta T) ** \gamma $')
+#RW1.scatter(mean_delta_stop_temp, all_stop_durations, color="black", alpha=0.3)
+#RW1.set_ylabel(r'$t_{s}(s)$')
+
+def RTS_PSD(w):#, v_0, P, t_0, t_1, range, dT):
+    sum = 0
+    for T in np.arange(0,5.9,0.1):
+        sum += (data_entries_RW[int(round(T/0.1, 0))] * dT) / ((myCurve2(T, *popt_stop2) + 1) * ((1 / myCurve2(T, *popt_stop2) + 1 / mean_t1) ** 2 + w ** 2))
+    return v_RW ** 2 * sum
+
+omega = np.linspace(0.0001, (np.pi/2))
+RW1.set_xscale('log')
+RW1.set_yscale('log')
+RW1.set_xlim(10 ** (-2), (np.pi/2) * 10 ** 0)
+RW1.set_ylim(10 ** (-4), 10 ** 2)
+RW1.set_xlabel(r'$\omega$')
+RW1.plot(omega, RTS_PSD(omega))
+RW1.plot(omega, (1/omega**1), label=r'$1 / \omega^{1}$')
+RW1.legend(loc="lower left")
 plt.show()

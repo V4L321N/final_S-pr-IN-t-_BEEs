@@ -80,6 +80,9 @@ def Y_remove_NaN(item):
 
 """-begin------calculate velocity (except zero) for each time step-----------------"""
 def calc_vel(item):
+    list_vel = []
+    list_vel_NO_stopping = []
+    list_vel_ONLY_stopping = []
 
     X_dataset_wo_NAN = X_remove_NaN(item) #test_x
     Y_dataset_wo_NAN = Y_remove_NaN(item) #test_y
@@ -135,21 +138,21 @@ def PSD(item):
 #         PSD_list.append(theta_FFT[i].real ** 2 + theta_FFT[i].imag ** 2)
 #     return PSD_list
 """-end----------calculate power spectral density of the angle FT------------"""
-list_vel = []
-list_vel_NO_stopping = []
-list_vel_ONLY_stopping = []
+mean_vel = []
 for item in head:
     histogram_data = calc_vel(item)
+    mean_vel.append(np.mean(histogram_data[0]))
+print(np.mean(mean_vel), np.std(mean_vel))
 
 
-plt.hist(histogram_data[0], bins=30, range=(0,6), density=True, alpha=0.50, color='blue', label='valid data')
-plt.hist(histogram_data[1], bins=30, range=(0,6), density=True, alpha=0.50, color='red', label='removed data')
-std_walk = np.std(histogram_data[0], ddof=1)
-mean_walk = np.mean(histogram_data[0])
-domain = np.linspace(0, 6)
-plt.ylim(0,2)
-plt.plot(domain, norm.pdf(domain, mean_walk, std_walk), color='black', linestyle='dashed')
-plt.show()
+# plt.hist(histogram_data[0], bins=30, range=(0,6), density=True, alpha=0.50, color='blue', label='valid data')
+# plt.hist(histogram_data[1], bins=30, range=(0,6), density=True, alpha=0.50, color='red', label='removed data')
+# std_walk = np.std(histogram_data[0])
+# mean_walk = np.mean(histogram_data[0])
+# domain = np.linspace(0, 6)
+# plt.ylim(0,2)
+# plt.plot(domain, norm.pdf(domain, mean_walk, std_walk), color='black', linestyle='dashed')
+# plt.show()
 # fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
 # itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4, WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
 # type = [r'$IB_1$', r'$IB_2$', r'$IB_3$', r'$IB_4$', r'$GF_1$', r'$GF_2$', r'$GF_3$', r'$GF_4$', r'$WF_1$', r'$WF_2$', r'$WF_3$', r'$WF_4$', r'$RW_1$', r'$RW_2$', r'$RW_3$', r'$RW_4$']

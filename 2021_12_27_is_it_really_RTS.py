@@ -123,20 +123,33 @@ RW_2 = "BT06B-1"
 RW_3 = "BT13A-3"
 RW_4 = "BT12A-1"
 random_squad = [RW_1,RW_2,RW_3,RW_4]
-for testbee in random_squad:
-    vel, shot = calc_vel_shot(testbee)
-    fig, ax1 = plt.subplots()
+
+fig, ((RW1, RW2, RW3, RW4)) = plt.subplots(4, 1, figsize=(10,10))
+itemize = [RW1, RW2, RW3, RW4]
+type = [r'$RW_1$', r'$RW_2$', r'$RW_3$', r'$RW_4$']
+n=0
+fig.set_tight_layout(True)
+
+for item in itemize:
+    vel, shot = calc_vel_shot(random_squad[n])
     color_RTS = 'tab:red'
-    ax1.set_xlabel('time '+r'$ [s]$')
-    ax1.set_ylabel('RTS')
-    ax1.plot(shot, color=color_RTS)
-    ax2 = ax1.twinx()
+    if item == RW4:
+        item.set_xlabel('time '+r'$ [s]$')
+    item.set_ylabel('RTS')
+    item.plot(shot, color=color_RTS)
+    ax2 = item.twinx()
     color_vel = 'tab:blue'
     ax2.set_ylabel('velocity '+r'$ [cm/s]$')
     ax2.plot(vel, color=color_vel)
+    ax2.set_ylim(-0.1,6.1)
+    ax2.set_yticks([0,3,6])
     fig.tight_layout()
-    ax1.set_yticks([0,1])
-    plt.show()
+    item.set_xlim(-1,1201)
+    item.set_ylim(-0.02, 1.02)
+    item.set_yticks([0,1])
+    item.annotate(type[n], xy=(0.955,0.9),xycoords='axes fraction', fontsize=12)
+    n+=1
+plt.show()
 
 
     # plt.plot(calc_vel_shot(testbee)[0])

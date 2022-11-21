@@ -261,8 +261,18 @@ for item in itemize:#head:
 plt.show()
 
 """----------------------"""
+v_poly = []
+for item in head:
+    listy = MSD_temporal(item)
+    listx = np.linspace(0, len(listy), len(listy))
 
-
+    START_poly = 0
+    END_poly = 10 #len(listy)
+    listyPOLY = listy[START_poly:END_poly]
+    listxPOLY = np.linspace(START_poly, END_poly, END_poly-START_poly)
+    popt_poly, pcov_poly = curve_fit(myPoly, listxPOLY, listyPOLY, maxfev = 2000000, p0=(1, 350, 1))
+    v_poly.append(np.sqrt(popt_poly[1]))
+print("mean "+str(np.mean(v_poly)), "std "+str(np.std(v_poly)))
 """----try 1------"""
 # posx = 0
 # posy = 0

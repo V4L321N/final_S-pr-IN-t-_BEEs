@@ -122,7 +122,7 @@ def MSD_bundle(item):
     slope.append(MSD[-1]/len(MSD))
     print(slope)
     plt.plot(MSD)
-    plt.plot(lin,lin,linestyle='dotted',color='black')
+    #plt.plot(lin,lin,linestyle='dotted',color='black')
     #plt.xlim(0,300)
     #plt.ylim(0,800)
     #plt.xscale("log")

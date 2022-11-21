@@ -10,19 +10,22 @@ import matplotlib.mlab as mlab
 from scipy.optimize import curve_fit
 
 head = list(pd.DataFrame(data=pd.read_csv("data_bee_types/LS_spatial_D_x.csv")))
-
+#IB_1 = "BT01A-1"
 IB_1 = "BT06A-2"
 IB_2 = "BT06A-3"
 IB_3 = "BT02B-2"
 IB_4 = "BT02B-1"
 GF_1 = "BT09A-2"
 GF_2 = "BT09B-2"
+#GF_3 = "BT10B-4" #new1
+#GF_3 = "BT01C-4" #new1
 GF_3 = "BT09B-4"
 GF_4 = "BT12B-2"
 WF_1 = "BT04B-3"
 WF_2 = "BT09B-1"
 WF_3 = "BT12B-1"
 WF_4 = "BT13B-3"
+#RW_1 = "BT18A-4" #new1
 RW_1 = "BT03A-1"
 RW_2 = "BT06B-1"
 RW_3 = "BT13A-3"
@@ -120,10 +123,14 @@ def recalc_w_2pi(item):
     theta_G = theta_in_G(item)
     n = len(theta_G)
     for t in range(n):
-        if theta_G[t] - theta_G[t-1] >= np.pi:
+        while theta_G[t] - theta_G[t-1] > np.pi:
             theta_G[t] -= 2 * np.pi
-        elif theta_G[t] - theta_G[t-1] <= -np.pi:
+        while theta_G[t] - theta_G[t-1] < -np.pi:
             theta_G[t] += 2 * np.pi
+        # if theta_G[t] - theta_G[t-1] > np.pi:
+        #     theta_G[t] -= 2 * np.pi
+        # elif theta_G[t] - theta_G[t-1] < -np.pi:
+        #     theta_G[t] += 2 * np.pi
     return theta_G
 #plt.plot(recalc_w_2pi(testbee))
 """-end--------recalculate turning angle to avoid jumps from -pi and +pi-----"""
@@ -180,13 +187,13 @@ for item in itemize:
     start = 0.001
     end = 2 * np.pi / 2
     omega = np.linspace(start, end, length)
-    popt, pcov = curve_fit(S, omega, psd_test)#, bounds=([0, 0], [10000, 10]))
+    popt, pcov = curve_fit(S, omega, psd_test, maxfev = 200000, p0=(10,0.001))#, bounds=([0, 0], [10000, 10]))
     item.plot(omega, psd_test, color='black', alpha=0.5, label='experiment')
     item.plot(omega, S(omega, popt[0], popt[1]), color='black', linestyle='dotted', label='model fit')
     item.set_xscale('log')
     item.set_yscale('log')
     item.set_xlim(0.001,np.pi)
-    item.set_ylim(0.001,30000)
+    item.set_ylim(0.001,3 * 10**7)
     item.set_xticks([])
     item.set_yticks([])
     item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
@@ -199,7 +206,8 @@ for item in itemize:
         q = 1
     if n in [0,4,8,12]:
         item.set_ylabel(r'$S_{\theta}(\omega)$')
-        item.set_yticks([10**(-1), 10**(1), 10**(3)])
+        item.set_yticks([10**(-2),10**(-0),10**(2),10**(4), 10**(6)])
+        #item.set_yticks([10**(-1), 10**(1), 10**(3)])
     if n in [12,13,14,15]:
         item.set_xlabel(r'$\omega$')
         item.set_xticks([10**(-2), 10**(-1), 10**(0)])

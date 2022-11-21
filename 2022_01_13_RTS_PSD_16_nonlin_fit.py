@@ -94,26 +94,27 @@ def calc_dur_stop(item):
 
     T_dataset_wo_NAN = T_remove_NaN(item)
     T_minmax_data = pd.DataFrame(data=pd.read_csv("data_bee_types/temperature_variables.csv"), columns=[item])
-    T_max = T_minmax_data.iloc[1].item()
     T_min = T_minmax_data.iloc[0].item()
+    T_max = T_minmax_data.iloc[1].item()
 
     stop_vel = 0.4
     duration_stop = 0
-    #all_stop_durations = []
+    all_stop_durations = []
     stop_temperatures = []
-    #mean_delta_stop_temp = []
+    mean_delta_stop_temp = []
     for v in range(len(list_vel[:-1])):
         if list_vel[v] <= stop_vel:
             duration_stop += 1
             stop_temperatures.append(T_dataset_wo_NAN[v])
             if list_vel[v+1] > stop_vel:
                 all_stop_durations.append(duration_stop)
-                mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_min)/(T_max - T_min)))
+                #mean_delta_stop_temp.append(np.abs(np.mean(stop_temperatures) - T_ideal))
+                mean_delta_stop_temp.append(np.abs(np.mean(stop_temperatures) - T_max))#/np.abs(T_max-T_min))
                 duration_walk = 0
                 walk_temperatures = []
             elif v == len(list_vel[:-2]):
                 all_stop_durations.append(duration_stop)
-                mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_min)/(T_max - T_min)))
+                mean_delta_stop_temp.append(np.abs(np.mean(stop_temperatures) - T_max))#/np.abs(T_max-T_min))
     return all_stop_durations, mean_delta_stop_temp
 #print(calc_vel(testbee))
 #plt.show()
@@ -156,7 +157,7 @@ def calc_dur_walk(item):
 #plt.show()
 """-end--------calculate duration walking-----------------"""
 
-# """-begin------calculate velocity for each time step-----------------"""
+"""-begin------calculate velocity for each time step-----------------"""
 # def calc_vel(item):
 #     list_vel = []
 #     X_dataset_wo_NAN = X_remove_NaN(item) #test_x
@@ -167,18 +168,18 @@ def calc_dur_walk(item):
 #         velocity = np.sqrt((X_dataset_wo_NAN[t + 1] - X_dataset_wo_NAN[t]) ** 2 + (Y_dataset_wo_NAN[t + 1] - Y_dataset_wo_NAN[t]) ** 2)
 #         list_vel.append(velocity)
 #     return list_vel
-# #plt.plot(calc_vel(testbee))
-# #plt.show()
-# """-end--------calculate velocity in for each time step-----------------"""
+#plt.plot(calc_vel(testbee))
+#plt.show()
+"""-end--------calculate velocity in for each time step-----------------"""
 
 """-begin------calculate velocity (except zero) for each time step-----------------"""
 def calc_vel(item):
     list_vel = []
     X_dataset_wo_NAN = X_remove_NaN(item) #test_x
     Y_dataset_wo_NAN = Y_remove_NaN(item) #test_y
-    n = len(X_dataset_wo_NAN) - 1
-    timeline = np.linspace(0, n, n)
-    for t in range(n):
+    l = len(X_dataset_wo_NAN) - 1
+    timeline = np.linspace(0, l, l)
+    for t in range(l):
         velocity = np.sqrt((X_dataset_wo_NAN[t + 1] - X_dataset_wo_NAN[t]) ** 2 + (Y_dataset_wo_NAN[t + 1] - Y_dataset_wo_NAN[t]) ** 2)
         list_vel.append(velocity)
     #return list_vel
@@ -225,14 +226,16 @@ def PSD(item):
     return PSD_list
 
 def RTS_PSD(item):
-
     return 0
 
-def myPoly(x, a, b, c):
-    return a * x**2 + b * x +c
+def myCurve1(x,tau,beta):
+    return tau * np.exp(-beta * x) #tau / (1 + (beta * x)) #
 
-def fit_function(x, A, beta, B, mu, sigma):
-    return (np.sqrt(A**2) * np.exp(-x/beta) + np.sqrt(B**2) * np.exp(-1.0 * (x - mu)**2 / (2 * sigma**2)))
+def myCurve2(x,tau,beta,gamma):
+    return tau * (beta * x) ** gamma #tau / (1 + (beta * x)) #
+
+def myCurve3(x,tau,beta):
+    return tau / (1 + beta * x)
 
 # def PSD(item):
 #     PSD_list = []
@@ -241,78 +244,39 @@ def fit_function(x, A, beta, B, mu, sigma):
 #     return PSD_list
 """-end----------calculate power spectral density of the angle FT------------"""
 
-#fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
-fig, ((IB1,GF1),(WF1,RW1)) = plt.subplots(2, 2, figsize=(7,7))
-#itemizeIB = [IB1, IB2, IB3, IB4]#, GF1, GF2, GF3, GF4, WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
-#type = [r'$IB_1$', r'$IB_2$', r'$IB_3$', r'$IB_4$', r'$GF_1$', r'$GF_2$', r'$GF_3$', r'$GF_4$', r'$WF_1$', r'$WF_2$', r'$WF_3$', r'$WF_4$', r'$RW_1$', r'$RW_2$', r'$RW_3$', r'$RW_4$']
-type = [r'$IB_{1-4}$', r'$GF_{1-4}$', r'$WF_{1-4}$', r'$RW_{1-4}$']
-IB_group_STOPS_at_dT = []
-IB_group_TEMPS_at_stop = []
-n_IB=0
+fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
+itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4, WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
+type = [r'$IB_1$', r'$IB_2$', r'$IB_3$', r'$IB_4$', r'$GF_1$', r'$GF_2$', r'$GF_3$', r'$GF_4$', r'$WF_1$', r'$WF_2$', r'$WF_3$', r'$WF_4$', r'$RW_1$', r'$RW_2$', r'$RW_3$', r'$RW_4$']
+n=0
 fig.set_tight_layout(True)
-all_stop_durations = []
-mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeIB:
-    calc_dur_stop(Well_Behaved[n_IB])
-    n_IB += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
-IB1.set_ylim(-10,1300)
-IB1.set_xlim(-0.01,1.01)
-IB1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-IB1.scatter(mean_delta_stop_temp, all_stop_durations)
-
-GF_group_STOPS_at_dT = []
-GF_group_TEMPS_at_stop = []
-n_GF=4
-fig.set_tight_layout(True)
-all_stop_durations = []
-mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeGF:
-    calc_dur_stop(Well_Behaved[n_GF])
-    n_GF += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
-GF1.set_ylim(-10,1300)
-GF1.set_xlim(-0.01,1.01)
-GF1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-GF1.scatter(mean_delta_stop_temp, all_stop_durations)
-
-WF_group_STOPS_at_dT = []
-WF_group_TEMPS_at_stop = []
-n_WF=8
-fig.set_tight_layout(True)
-all_stop_durations = []
-mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeWF:
-    calc_dur_stop(Well_Behaved[n_WF])
-    n_WF += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
-WF1.set_ylim(-10,1300)
-WF1.set_xlim(-0.01,1.01)
-WF1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-WF1.scatter(mean_delta_stop_temp, all_stop_durations)
-
-RW_group_STOPS_at_dT = []
-RW_group_TEMPS_at_stop = []
-n_RW=12
-fig.set_tight_layout(True)
-all_stop_durations = []
-mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeRW:
-    calc_dur_stop(Well_Behaved[n_RW])
-    n_RW += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
-RW1.set_ylim(-10,1300)
-RW1.set_xlim(-0.01,1.01)
-RW1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-RW1.scatter(mean_delta_stop_temp, all_stop_durations)
-
-
+for item in itemize:
+    item.set_ylim(-20,1300)
+    item.set_xlim(-0.2,10.2)
+    xspace = np.linspace(0,10,99)
+    #xspace = np.arange(0,10,1)
+    vel = calc_vel(Well_Behaved[n])
+    vel_0 = np.mean(vel[0])
+    stop_durations, stop_temp = calc_dur_stop(Well_Behaved[n])
+    print(len(stop_durations), len(stop_temp))
+    item.scatter(stop_temp, stop_durations, color='black', alpha=0.3)
+    item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
+    item.set_xticks([])
+    item.set_yticks([])
+    if item != IB2:
+        popt1, pcov1 = curve_fit(myCurve1, stop_temp, stop_durations, maxfev = 200000, p0=(0,0))
+        item.plot(myCurve1(np.linspace(0,10,11), *popt1), color="red", linestyle='dotted', label='t*e^(-bx)')
+        #popt2, pcov2 = curve_fit(myCurve2, stop_temp, stop_durations, maxfev = 200000, p0=(0,0,0))
+        #item.plot(myCurve2(np.linspace(0,100,100), *popt2), color="red", linestyle='dashed', label='t*(bx)^g')
+        # popt3, pcov3 = curve_fit(myCurve3, stop_temp, stop_durations, maxfev = 200000, p0=(0,0))
+        # item.plot(myCurve3(xspace, *popt3), color="red", linestyle='dashdot', label='t/(1+bx)')
+    if item == IB2:
+        item.annotate('invalid', xy=(0.35,0.45),xycoords='axes fraction', color='red', fontsize=12)
+    if item in [RW1, RW2, RW3, RW4]:
+        item.set_xticks([0,5,10])
+        item.set_xlabel(r'$\Delta T (\degree C)$')
+    if item in [IB1, GF1, WF1, RW1]:
+        item.set_yticks([0,600,1200])
+        item.set_ylabel(r'$t_{s}(s)$')
+    n += 1
+#plt.legend()
 plt.show()

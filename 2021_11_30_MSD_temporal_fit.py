@@ -168,46 +168,51 @@ def MSD_temporal(item):
 def myExpFunc(x, b, m):
     return x * m + b #x ** m + b
 
-fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
-itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4, WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
-n=0
-fig.set_tight_layout(True)
-for item in itemize:
-    listy = MSD_temporal(Well_Behaved[n])
+# fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))
+# itemize = [IB1, IB2, IB3, IB4, GF1, GF2, GF3, GF4, WF1, WF2, WF3, WF4, RW1, RW2, RW3, RW4]
+# n=0
+# fig.set_tight_layout(True)
+# for item in itemize:
+#     listy = MSD_temporal(Well_Behaved[n])
+#     listx = np.linspace(1, len(listy), len(listy))
+#     listyCUT = listy[0:20]
+#     listxCUT = np.linspace(1, len(listyCUT), len(listyCUT))
+#     popt, pcov = curve_fit(myExpFunc, listxCUT, listyCUT)
+#     item.plot(listx, myExpFunc(listx, *popt), label='fit', color='black', linestyle='dotted')
+#     item.plot(listx, listy, label='MSD', color='black', alpha=0.7)
+#     #item.set_xscale('log')
+#     #item.set_yscale('log')
+#     item.set_ylim(0.001, 4000)
+#     item.set_xticks([])
+#     item.set_yticks([])
+#
+#
+#     if n==0:
+#         item.legend(loc='center right')
+#     if n==0 or n==4 or n==8 or n==12:
+#         item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+#         item.set_yticks([0.1,3000])
+#         #item.set_yticks([1, 1000])
+#     if n==12 or n==13 or n==14 or n==15:
+#         item.set_xlabel(r'$\tau$')
+#         item.set_xticks([0, 600, 1200])
+#     n+=1
+#     item.text(400, 3500, r'$m= $' + str(round(popt[1], 3)))
+#     item.text(400, 3100,r'$b= $' + str(round(popt[0], 3)))
+#
+# plt.subplots_adjust(wspace=0.1, hspace=0.1)
+# plt.show()
+
+"""----------------------"""
+D = []
+for item in head:
+    listy = MSD_temporal(item)
     listx = np.linspace(1, len(listy), len(listy))
     listyCUT = listy[0:20]
     listxCUT = np.linspace(1, len(listyCUT), len(listyCUT))
     popt, pcov = curve_fit(myExpFunc, listxCUT, listyCUT)
-    item.plot(listx, myExpFunc(listx, *popt), label='fit', color='black', linestyle='dotted')
-    item.plot(listx, listy, label='MSD', color='black', alpha=0.7)
-    #item.set_xscale('log')
-    #item.set_yscale('log')
-    item.set_ylim(0.001, 4000)
-    item.set_xticks([])
-    item.set_yticks([])
-
-
-    if n==0:
-        item.legend(loc='center right')
-    if n==0 or n==4 or n==8 or n==12:
-        item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
-        item.set_yticks([0.1,3000])
-        #item.set_yticks([1, 1000])
-    if n==12 or n==13 or n==14 or n==15:
-        item.set_xlabel(r'$\tau$')
-        item.set_xticks([0, 600, 1200])
-    n+=1
-    item.text(400, 3500, r'$m= $' + str(round(popt[1], 3)))
-    item.text(400, 3100,r'$b= $' + str(round(popt[0], 3)))
-
-plt.subplots_adjust(wspace=0.1, hspace=0.1)
-plt.show()
-
-
-
-"""----------------------"""
-
-
+    D.append(round(popt[1], 3)/4)
+print("mean D" + str(np.mean(D)), "std D" + str(np.std(D)))
 """----try 1------"""
 # posx = 0
 # posy = 0

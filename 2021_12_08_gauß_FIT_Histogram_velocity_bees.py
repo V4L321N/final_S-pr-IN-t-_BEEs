@@ -85,20 +85,15 @@ def calc_vel(item):
     Y_dataset_wo_NAN = Y_remove_NaN(item) #test_y
     n = len(X_dataset_wo_NAN) - 1
     timeline = np.linspace(0, n, n)
-
     for t in range(n):
         velocity = np.sqrt((X_dataset_wo_NAN[t + 1] - X_dataset_wo_NAN[t]) ** 2 + (Y_dataset_wo_NAN[t + 1] - Y_dataset_wo_NAN[t]) ** 2)
         list_vel.append(velocity)
-
     unique, counts = np.unique(list_vel, return_counts=True)
     minimum = min(counts)
-
     treshold_list = []
-
     for u in range(len(unique)):
         if counts[u] <= minimum and unique[u] <= 0.5:
             treshold_list.append(unique[u])
-
     treshhold = max(treshold_list)
     list_vel_NO_stopping = []
     list_vel_ONLY_stopping = []
@@ -107,10 +102,7 @@ def calc_vel(item):
             list_vel_NO_stopping.append(list_vel[tt])
         else:
             list_vel_ONLY_stopping.append(list_vel[tt])
-
     return list_vel_NO_stopping, list_vel_ONLY_stopping
-#plt.plot(calc_vel(testbee))
-#plt.show()
 """-end--------calculate velocity  (except zero) in for each time step-----------------"""
 
 

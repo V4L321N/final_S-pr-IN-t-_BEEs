@@ -234,14 +234,14 @@ for item in head:
 std_inter = np.std(inter_list)
 mean_inter = np.mean(inter_list)
 mean_exp = np.mean(exp_list)
-plt.plot(listx, (listx/listx) * mean_inter, color='red', alpha=0.8, linewidth=1.3, linestyle='dotted')
-plt.plot(listx, listx**mean_exp, color='blue', alpha=0.8, linewidth=1.1)
-plt.annotate(r'$m = $'+ str(round(mean_inter,3)), xy=(0.05,0.85), xycoords='axes fraction', fontsize=10)
-plt.annotate(r'$\alpha = $'+ str(round(mean_exp,3)), xy=(0.05,0.9), xycoords='axes fraction', fontsize=10)
-plt.xlabel(r'$\tau$')
-plt.ylabel(r'$\langle r^{2}(\tau) \rangle$')
+plt.plot(listx, (listx/listx) * mean_inter, color='red', alpha=0.8, linewidth=1.8, linestyle='dotted')
+plt.plot(listx, listx**mean_exp, color='blue', alpha=0.8, linewidth=1.8)
+plt.annotate(r'$I = $'+ str(round(mean_inter,3)), xy=(0.05,0.85), xycoords='axes fraction', fontsize=10)
+plt.annotate(r'$\alpha_{K} = $'+ str(round(mean_exp,3)), xy=(0.05,0.9), xycoords='axes fraction', fontsize=10)
+plt.xlabel(r'$\tau \; (s)$')
+plt.ylabel(r'$\langle r^{2} \rangle \; (cm^{2})$')
 plt.show()
-
+print(std_inter)
 """----------------------"""
 
 

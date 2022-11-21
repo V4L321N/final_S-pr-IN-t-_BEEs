@@ -124,18 +124,21 @@ def MSD_bundle(bee, item):
             posy += np.sqrt((y[i-1]-y[i])**2)
     slope.append(MSD[-1]/len(MSD))
     item.plot(MSD, color='black', alpha=0.3)
-    item.plot(lin,lin,linestyle='dotted',color='black')
+    #item.plot(lin,lin,linestyle='dotted',color='black')
+    item.set_xscale("log")
+    item.set_yscale("log")
     item.set_xticks([])
     item.set_yticks([])
-    item.set_xlim(-10,510)
-    item.set_ylim(-10,510)
+    item.set_xlim(2,510)
+    #item.set_xlim(-10,510)
+    #item.set_ylim(-10,510)
     item.annotate(type[n], xy=(0.8,0.9),xycoords='axes fraction', fontsize=12)
     if n in [0,4,8,12]:
         item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
-        item.set_yticks([250,500])
+        #item.set_yticks([250,500])
     if n in [12,13,14,15]:
         item.set_xlabel(r'$\tau$')
-        item.set_xticks([0, 250, 500])
+        #item.set_xticks([0, 250, 500])
 
 
 fig, ((IB1, IB2, IB3, IB4), (GF1, GF2, GF3, GF4), (WF1, WF2, WF3, WF4), (RW1, RW2, RW3, RW4)) = plt.subplots(4, 4, figsize=(10,10))

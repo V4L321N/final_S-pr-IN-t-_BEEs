@@ -237,25 +237,25 @@ for item in itemize:#head:
     if n in [0,1,2,3]:
         item.set_ylim(0.001,4000)
         item.annotate(r'$v = $'+ str(round(popt_poly[1],3)), xy=(0.1,0.7), xycoords='axes fraction', fontsize=10)
-        item.annotate(r'$\alpha = $'+ str(round(popt_inter[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+        item.annotate(r'$\alpha_{K} = $'+ str(round(popt_inter[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
         item.annotate(r'$K_{\alpha} = $'+ str(round(popt_inter[2],3)), xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
     if n in [4,5,6,7]:
         item.annotate(r'$v = $'+ str(round(popt_poly[1],3)), xy=(0.1,0.7), xycoords='axes fraction', fontsize=10)
-        item.annotate(r'$\alpha = $'+ str(round(popt_inter[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
+        item.annotate(r'$\alpha_{K} = $'+ str(round(popt_inter[0],3)), xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)
         item.annotate(r'$K_{\alpha} = $'+ str(round(popt_inter[2],3)), xy=(0.1,0.8), xycoords='axes fraction', fontsize=10)
     if n in [8,9,10,11,12,13,14,15]:
         item.annotate(r'$v = $'+ str(round(popt_poly[1],3)), xy=(0.1,0.05), xycoords='axes fraction', fontsize=10)
-        item.annotate(r'$\alpha = $'+ str(round(popt_inter[0],3)), xy=(0.1,0.25), xycoords='axes fraction', fontsize=10)
+        item.annotate(r'$\alpha_{K} = $'+ str(round(popt_inter[0],3)), xy=(0.1,0.25), xycoords='axes fraction', fontsize=10)
         item.annotate(r'$K_{\alpha} = $'+ str(round(popt_inter[2],3)), xy=(0.1,0.15), xycoords='axes fraction', fontsize=10)
     if n == 0:
-        item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+        item.set_ylabel(r'$\langle r^{2} \rangle \; (cm^{2})$')
         item.set_yticks([10**(-3),10**(-1),10**(1),10**(3)])
     if n in [4,8,12]:
-        item.set_ylabel(r'$\langle r^{2}(\tau) \rangle$')
+        item.set_ylabel(r'$\langle r^{2} \rangle \; (cm^{2})$')
         item.set_yticks([10**(-1),10**(1),10**(3)])
         #item.set_yticks([1, 1000])
     if n in [12,13,14,15]:
-        item.set_xlabel(r'$\tau$')
+        item.set_xlabel(r'$\tau \; (s)$')
         item.set_xticks([10**(-3),10**(-1),10**(1),10**(3)])
     n+=1
     #item.annotate(r'$[k_1, k_2] \approx [$'+ str(round(popt_lin[0],0))+ ',' + str(round(popt_lin[1],0)) + r'$ ]$', xy=(0.1,0.9), xycoords='axes fraction', fontsize=10)

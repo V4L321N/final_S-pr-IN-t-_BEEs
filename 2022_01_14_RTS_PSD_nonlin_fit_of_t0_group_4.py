@@ -108,12 +108,14 @@ def calc_dur_stop(item):
             stop_temperatures.append(T_dataset_wo_NAN[v])
             if list_vel[v+1] > stop_vel:
                 all_stop_durations.append(duration_stop)
-                mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_min)/(T_max - T_min)))
+                mean_delta_stop_temp.append(np.abs(np.mean(stop_temperatures) - T_max))
+                #mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_max))/np.abs(T_max - T_min))
                 duration_walk = 0
                 walk_temperatures = []
             elif v == len(list_vel[:-2]):
                 all_stop_durations.append(duration_stop)
-                mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_min)/(T_max - T_min)))
+                mean_delta_stop_temp.append(np.abs(np.mean(stop_temperatures) - T_max))
+                #mean_delta_stop_temp.append(np.abs((np.mean(stop_temperatures) - T_max))/np.abs(T_max - T_min))
     return all_stop_durations, mean_delta_stop_temp
 #print(calc_vel(testbee))
 #plt.show()
@@ -234,6 +236,15 @@ def myPoly(x, a, b, c):
 def fit_function(x, A, beta, B, mu, sigma):
     return (np.sqrt(A**2) * np.exp(-x/beta) + np.sqrt(B**2) * np.exp(-1.0 * (x - mu)**2 / (2 * sigma**2)))
 
+def myCurve1(x,tau,beta):
+    return  tau / (1 + (beta * x))#tau * np.exp(-beta * x) #
+
+def myCurve2(x,tau,beta):
+    return  tau * np.exp(-beta * x) #
+
+def myCurve3(x,tau,beta,gamma):
+    return tau * (beta * x) ** gamma #tau / (1 + (beta * x)) #
+
 # def PSD(item):
 #     PSD_list = []
 #     for i in range(round(len(theta_FFT)/2)):
@@ -252,16 +263,23 @@ n_IB=0
 fig.set_tight_layout(True)
 all_stop_durations = []
 mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeIB:
+for item in range(0,4,1):#itemizeIB:
     calc_dur_stop(Well_Behaved[n_IB])
     n_IB += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
+popt_stop1, pcov_stop1 = curve_fit(myCurve1, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+popt_stop2, pcov_stop2 = curve_fit(myCurve2, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=([0,0], [3.0, 1.0]))
+#popt_stop3, pcov_stop3 = curve_fit(myCurve3, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0,0))#, bounds=([0,0,0], [3.0, 1.0, 1.0]))
+xspace = np.linspace(0, 10, 1000)
+#xspace = np.linspace(0, 10, 10)
 IB1.set_ylim(-10,1300)
-IB1.set_xlim(-0.01,1.01)
-IB1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-IB1.scatter(mean_delta_stop_temp, all_stop_durations)
+IB1.set_xlim(-0.01,8.01)
+IB1.plot(xspace, myCurve1(xspace, *popt_stop1), color='red', linewidth=1.1, linestyle='dashed', label=r'$ \tau / (1 + (\beta * \Delta T)) $')
+IB1.plot(xspace, myCurve2(xspace, *popt_stop2), color='red', linewidth=1.1, linestyle='dashdot', label=r'$ \tau * \exp(-\beta * \Delta T) $')
+#IB1.plot(xspace, myCurve3(xspace, *popt_stop3), color='firebrick', linewidth=1.1, label=r'$ \tau * (\beta * \Delta T) ** \gamma $')
+IB1.annotate(r'$IB_{1-4}$', xy=(0.73,0.9),xycoords='axes fraction', fontsize=12)
+
+IB1.scatter(mean_delta_stop_temp, all_stop_durations, color="black", alpha=0.3)
+IB1.set_ylabel(r'$t_{s}(s)$')
 
 GF_group_STOPS_at_dT = []
 GF_group_TEMPS_at_stop = []
@@ -269,16 +287,23 @@ n_GF=4
 fig.set_tight_layout(True)
 all_stop_durations = []
 mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeGF:
+for item in range(0,4,1):#itemizeGF:
     calc_dur_stop(Well_Behaved[n_GF])
     n_GF += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
+popt_stop1, pcov_stop1 = curve_fit(myCurve1, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=(0, [3.0, 1.0]))
+popt_stop2, pcov_stop2 = curve_fit(myCurve2, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))#, bounds=(0, [3.0, 1.0]))
+#popt_stop3, pcov_stop3 = curve_fit(myCurve3, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0,0))#, bounds=(0, [3.0, 1.0, 1.0]))
+xspace = np.linspace(0, 10, 1000)
+#xspace = np.linspace(0, 10, 10)
 GF1.set_ylim(-10,1300)
-GF1.set_xlim(-0.01,1.01)
-GF1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-GF1.scatter(mean_delta_stop_temp, all_stop_durations)
+GF1.set_xlim(-0.01,8.01)
+GF1.plot(xspace, myCurve1(xspace, *popt_stop1), color='red', linewidth=1.1, linestyle='dashed', label=r'$ \tau / (1 + (\beta * \Delta T)) $')
+GF1.plot(xspace, myCurve2(xspace, *popt_stop2), color='red', linewidth=1.1, linestyle='dashdot', label=r'$ \tau * \exp(-\beta * \Delta T) $')
+#GF1.plot(xspace, myCurve3(xspace, *popt_stop3), color='firebrick', linewidth=1.1, label=r'$ \tau * (\beta * \Delta T) ** \gamma $')
+GF1.annotate(r'$GF_{1-4}$', xy=(0.73,0.9),xycoords='axes fraction', fontsize=12)
+
+GF1.scatter(mean_delta_stop_temp, all_stop_durations, color="black", alpha=0.3)
+
 
 WF_group_STOPS_at_dT = []
 WF_group_TEMPS_at_stop = []
@@ -286,16 +311,26 @@ n_WF=8
 fig.set_tight_layout(True)
 all_stop_durations = []
 mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeWF:
+for item in range(0,4,1):#itemizeWF:
     calc_dur_stop(Well_Behaved[n_WF])
     n_WF += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
+
+popt_stop1, pcov_stop1 = curve_fit(myCurve1, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))
+popt_stop2, pcov_stop2 = curve_fit(myCurve2, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))
+#popt_stop3, pcov_stop3 = curve_fit(myCurve3, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0,0))
+xspace = np.linspace(0, 10, 1000)
+#xspace = np.linspace(0, 100, 100)
 WF1.set_ylim(-10,1300)
-WF1.set_xlim(-0.01,1.01)
-WF1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-WF1.scatter(mean_delta_stop_temp, all_stop_durations)
+WF1.set_xlim(-0.01,8.01)
+WF1.plot(xspace, myCurve1(xspace, *popt_stop1), color='red', linewidth=1.1, linestyle='dashed', label=r'$ \tau / (1 + (\beta * \Delta T)) $')
+WF1.plot(xspace, myCurve2(xspace, *popt_stop2), color='red', linewidth=1.1, linestyle='dashdot', label=r'$ \tau * \exp(-\beta * \Delta T) $')
+WF1.legend(loc="upper left")
+#WF1.plot(xspace, myCurve3(xspace, *popt_stop3), color='firebrick', linewidth=1.1, label=r'$ \tau * (\beta * \Delta T) ** \gamma $')
+WF1.annotate(r'$WF_{1-4}$', xy=(0.73,0.9),xycoords='axes fraction', fontsize=12)
+
+WF1.scatter(mean_delta_stop_temp, all_stop_durations, color="black", alpha=0.3)
+WF1.set_xlabel(r'$\Delta T (\degree C)$')
+WF1.set_ylabel(r'$t_{s}(s)$')
 
 RW_group_STOPS_at_dT = []
 RW_group_TEMPS_at_stop = []
@@ -303,16 +338,23 @@ n_RW=12
 fig.set_tight_layout(True)
 all_stop_durations = []
 mean_delta_stop_temp = []
-for item in range(1,4,1):#itemizeRW:
+for item in range(0,4,1):#itemizeRW:
+    print(n_RW)
     calc_dur_stop(Well_Behaved[n_RW])
     n_RW += 1
-stop = np.polyfit(mean_delta_stop_temp, all_stop_durations, 1)#, cov=True)
-xspace = np.linspace(-10, 10, 1000)
+popt_stop1, pcov_stop1 = curve_fit(myCurve1, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))
+popt_stop2, pcov_stop2 = curve_fit(myCurve2, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0))
+#popt_stop3, pcov_stop3 = curve_fit(myCurve3, mean_delta_stop_temp, all_stop_durations, maxfev = 200000, p0=(0,0,0))
+xspace = np.linspace(0, 10, 1000)
+#xspace = np.linspace(0, 100, 100)
 RW1.set_ylim(-10,1300)
-RW1.set_xlim(-0.01,1.01)
-RW1.plot(xspace, stop[0]*xspace+stop[1], color='red', linewidth=1.1, linestyle='dashed')
-    #item.plot(data_entries_1)
-RW1.scatter(mean_delta_stop_temp, all_stop_durations)
+RW1.set_xlim(-0.01,8.01)
+RW1.plot(xspace, myCurve1(xspace, *popt_stop1), color='red', linewidth=1.1, linestyle='dashed', label=r'$ t_{0} = \tau / (1 + (\beta * \Delta T)) $')
+RW1.plot(xspace, myCurve2(xspace, *popt_stop2), color='red', linewidth=1.1, linestyle='dashdot', label=r'$ t_{0} = \tau * e^{-\beta * \Delta T} $')
+#RW1.plot(xspace, myCurve3(xspace, *popt_stop3), color='firebrick', linewidth=1.1, label=r'$ t_{0} = \tau * (\beta * \Delta T)^{\gamma} $')
+RW1.annotate(r'$RW_{1-4}$', xy=(0.73,0.9),xycoords='axes fraction', fontsize=12)
 
+RW1.scatter(mean_delta_stop_temp, all_stop_durations, color="black", alpha=0.3)
+RW1.set_xlabel(r'$\Delta T (\degree C)$')
 
 plt.show()

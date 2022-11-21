@@ -93,38 +93,42 @@ def powerCurve(f, alpha):
     return 1/(f**alpha)
 """-end------------function: different fitting functions---------------------"""
 
-"""-begin--------function: calculate TSMD------------------------------------"""
+"""-begin--------function: calculate TMSD------------------------------------"""
 def MSD_temporal(item):
     x,y = X_remove_NaN(item),Y_remove_NaN(item)
     MSD = []
     length = len(x)
-    for tau in range(1, length):
+    for tau in range(0, length):
         MSD_tau = 0
         for t in range(0, (length-tau)):
             MSD_tau += (x[t+tau]-x[t])**2 + (y[t+tau]-y[t])**2
         MSD.append(MSD_tau/(length-tau))
     return MSD
-"""-end-----------function: calculate TSMD-----------------------------------"""
+"""-end-----------function: calculate TMSD-----------------------------------"""
 #
-"""-begin--------list: TSMD ALL BEES-----------------------------------------"""
-list_TSMD_b = []
-list_TSMD_m = []
+"""-begin--------list: TMSD ALL BEES-----------------------------------------"""
+list_TMSD_b = []
+list_TMSD_m = []
+list_TMSD_D = []
 for testbee in head:
     listy = MSD_temporal(testbee)
     listx = np.linspace(1, len(listy), len(listy))
     listyCUT = listy[0:20]
     listxCUT = np.linspace(1, len(listyCUT), len(listyCUT))
     popt, pcov = curve_fit(myLinFunc, listxCUT, listyCUT)
-    b = str(round(popt[0], 3))
-    m = str(round(popt[1], 3))
-    list_TSMD_b.append(b)
-    list_TSMD_m.append(m)
-"""-end----------list: TSMD ALL BEES-----------------------------------------"""
+    b = round(popt[0], 2)
+    m = round(popt[1], 2)
+    D = m / 4
+
+    list_TMSD_b.append(b)
+    list_TMSD_m.append(m)
+    list_TMSD_D.append(D)
+"""-end----------list: TMSD ALL BEES-----------------------------------------"""
 #
-"""-begin-----------list: TSMD DIFFERENT FITS ALL BEES/LOGLOG PLOT-----------"""
-list_TSMD_v = []
-list_TSMD_K = []
-list_TSMD_alpha = []
+"""-begin-----------list: TMSD DIFFERENT FITS ALL BEES/LOGLOG PLOT-----------"""
+list_TMSD_v = []
+list_TMSD_K = []
+list_TMSD_alpha = []
 for testbee in head:
     listy = MSD_temporal(testbee)
     listx = np.linspace(0, len(listy), len(listy))
@@ -147,10 +151,10 @@ for testbee in head:
     listxLIN = np.linspace(START_lin, END_lin, END_lin-START_lin)
     popt_lin, pcov_lin = curve_fit(myLin2Func, listxLIN, listyLIN, maxfev = 200000, p0=(1))
 
-    list_TSMD_v.append(round(popt_poly[1],2))
-    list_TSMD_K.append(round(popt_power[2],2))
-    list_TSMD_alpha.append(round(popt_power[0],2))
-"""-end-------------list: TSMD DIFFERENT FITS ALL BEES/LOGLOG PLOT-----------"""
+    list_TMSD_v.append(round(popt_poly[1],2))
+    list_TMSD_K.append(round(popt_power[2],2))
+    list_TMSD_alpha.append(round(popt_power[0],2))
+"""-end-------------list: TMSD DIFFERENT FITS ALL BEES/LOGLOG PLOT-----------"""
 
 """-begin----------function: calculate sitting and walking velocites------"""
 def calc_vel_sw(item):
@@ -224,6 +228,7 @@ def S(w, D, coupling_a):
 """-begin--------list: PSD OF THE VELOCITY ALL BEES-------------------------"""
 list_D_v = []
 list_a_v = []
+list_alpha_pow = []
 for testbee in head:
     psd_test = PSD_vel(testbee)
     length = len(psd_test)
@@ -231,8 +236,10 @@ for testbee in head:
     end = 2 * np.pi / 2
     omega = np.linspace(start, end, length)
     popt, pcov = curve_fit(S, omega, psd_test)
-    list_D_v.append(round(popt[0], 2))
-    list_a_v.append(round(popt[1], 2))
+    popt_pow, pcov_pow = curve_fit(powerCurve, omega, psd_test)
+    list_D_v.append(round(popt[0], 4))
+    list_a_v.append(abs(round(popt[1], 4)))
+    list_alpha_pow.append(round(popt_pow[0],3))
 """-end----------list: PSD OF THE VELOCITY ALL BEES-------------------------"""
 
 """-begin------function: calculate turning angle in for each time step-------"""
@@ -318,8 +325,8 @@ for testbee in head:
     end = 2 * np.pi / 2
     omega = np.linspace(start, end, length)
     popt, pcov = curve_fit(S, omega, psd_test, maxfev = 200000, p0=(10,0.001))
-    list_D_r.append(round(popt[0], 2))
-    list_a_r.append(round(popt[1], 2))
+    list_D_r.append(round(popt[0], 4))
+    list_a_r.append(round(popt[1], 4))
 """-end----------list: PSD OF ANGLE THETA ALL BEES--------------------------"""
 
 """-begin------function: map velocity as shot noise--------------------------"""
@@ -448,7 +455,13 @@ for testbee in head:
         # popt1, pcov1 = curve_fit(myCurve1, stop_temp, stop_durations, maxfev = 200000, p0=(0,0))
         popt2, pcov2 = curve_fit(myCurve2, stop_temp, stop_durations, maxfev = 200000, p0=(0,0))
         # popt3, pcov3 = curve_fit(myCurve3, stop_temp, stop_durations, maxfev = 200000, p0=(0,0,0))
-        list_tau.append(round(popt2[0], 2))
+        tau = round(popt2[0], 2)
+        if tau > 1000:
+            tau_scientific_notation = "{:.2e}".format(tau)
+            list_tau.append(tau_scientific_notation)
+        else:
+            tau_scientific_notation
+            list_tau.append(tau)
         list_beta.append(round(popt2[1], 2))
     else:
         list_tau.append(0)
@@ -531,12 +544,12 @@ for testbee in head:
         y_low = S(x_low, mean_velocity, mean_t1, data_entries, dT)
         y_high = S(x_high, mean_velocity, mean_t1, data_entries, dT)
         alpha = np.abs(np.log10(y_high/y_low))
-        list_alpha_1.append(round(alpha,2))
+        list_alpha_1.append(str(round(alpha,2)) + " \\\\")
 
         #high_omega = np.linspace(0.15,1.5)
         high_omega = np.linspace(0.015,1.5)
         popt_pow, pcov_pow = curve_fit(powerCurve, high_omega, S(high_omega, mean_velocity, mean_t1, data_entries, dT), maxfev=200000, p0=(0))
-        list_alpha_2.append(round(popt_pow[0],2))
+        list_alpha_2.append(str(round(popt_pow[0],2)))
 
         print(testbee)
     else:
@@ -571,7 +584,7 @@ for testbee in head:
         list_type.append("WF")
     elif TY == "Random Walker":
         list_type.append("RW")
-    list_name.append(testbee)
+    list_name.append('\\bfseries ' + str(testbee))
     if testbee in NARROW:
         list_gradient.append(1)
     elif testbee in STEEP:
@@ -579,52 +592,43 @@ for testbee in head:
     if testbee in STEEPEST:
         list_gradient.append(3)
 
-# fig, ax = plt.subplots(figsize=(7,10))
-# # hide axes
-# fig.patch.set_visible(False)
-# ax.axis('off')
-# ax.axis('tight')
-#df = pd.DataFrame(list(zip(list_TSMD_b, list_TSMD_m, list_mean_walk_vel)), columns=[r'$b_{TSMD}$', r'$m_{TSMD}$', r'$v_{mean}$'])
-#df = pd.DataFrame(list(zip(list_name[0:30], list_type[0:30], list_TSMD_b[0:30], list_TSMD_m[0:30], list_mean_walk_vel[0:30])), columns=["ID", "type", r'$b_{TSMD}$', r'$m_{TSMD}$', r'$v_{mean}$'])
-# ax.table(cellText=df.values, colLabels=df.columns, loc='center', fontsize=10)
-# fig.tight_layout()
-# plt.show()
+df = pd.DataFrame(list(zip(list_name, list_gradient, list_type, list_TMSD_D, list_TMSD_v, list_TMSD_K, list_TMSD_alpha, list_mean_walk_vel, list_D_v, list_a_v, list_alpha_pow, list_D_r, list_a_r, list_tau, list_beta, list_alpha_1)), columns=["ID", "type", r'$\nabla V$', r'$D_{TMSD}$', r'$v_{TMSD}$', r'$K_{\alpha}$', r'$\alpha_{TMSD}$', r'$v_{mean}$', r'$D_{v}$', r'$a_{v}$',  r'$\alpha_{pow}$', r'$D_{\theta}$', r'$a_{\theta}$', r'$\tau$', r'$\beta$', r'$\alpha_{1}$'])
+df.to_csv("MASTER_TABLE.csv", index=False)
 
-df = pd.DataFrame(list(zip(list_name, list_type, list_TSMD_b, list_TSMD_m, list_TSMD_v, list_TSMD_K, list_TSMD_alpha, list_mean_walk_vel, list_D_v, list_a_v, list_D_r, list_a_r, list_tau, list_beta, list_alpha_1, list_alpha_2)), columns=["ID", "type", r'$b_{TSMD}$', r'$m_{TSMD}$', r'$v_{TSMD}$', r'$K_{TSMD}$', r'$\alpha_{TSMD}$', r'$v_{mean}$', r'$D_{v}$', r'$a_{v}$', r'$D_{\theta}$', r'$a_{\theta}$', r'$\tau$', r'$\beta$', r'$\alpha_{1}$', r'$\alpha_{2}$'])
-df.to_csv("MASTER_TABLE.csv")
-
-#print(list_TSMD_b)
-
-#mean_TSMD_b = np.mean(list_TSMD_b)
-#mean_TSMD_m = np.mean(list_TSMD_m)
-mean_TSMD_v = np.mean(list_TSMD_v)
-mean_TSMD_K = np.mean(list_TSMD_K)
-mean_TSMD_alpha = np.mean(list_TSMD_alpha)
+#mean_TMSD_b = np.mean(list_TMSD_b)
+#mean_TMSD_m = np.mean(list_TMSD_m)
+mean_TMSD_D = np.mean(list_TMSD_D)
+mean_TMSD_v = np.mean(list_TMSD_v)
+mean_TMSD_K = np.mean(list_TMSD_K)
+mean_TMSD_alpha = np.mean(list_TMSD_alpha)
 mean_mean_walk_vel = np.mean(list_mean_walk_vel)
 mean_D_v = np.mean(list_D_v)
 mean_a_v = np.mean(list_a_v)
 mean_D_r = np.mean(list_D_r)
 mean_a_r = np.mean(list_a_r)
-mean_tau = np.mean(list_tau)
+#mean_tau = np.mean(list_tau)
 mean_beta = np.mean(list_beta)
 mean_alpha_1 = np.mean(list_alpha_1)
-mean_alpha_2 = np.mean(list_alpha_2)
+#mean_alpha_2 = np.mean(list_alpha_2)
 
-print(mean_TSMD_b, mean_TSMD_m, mean_TSMD_v, mean_TSMD_K, mean_TSMD_alpha, mean_TSMD_alpha, mean_mean_walk_vel, mean_D_v, mean_a_v, mean_D_r, mean_a_r, mean_tau, mean_beta, mean_alpha_1, mean_alpha_2)
+#print(mean_TMSD_b, mean_TMSD_m, mean_TMSD_v, mean_TMSD_K, mean_TMSD_alpha, mean_TMSD_alpha, mean_mean_walk_vel, mean_D_v, mean_a_v, mean_D_r, mean_a_r, mean_tau, mean_beta, mean_alpha_1, mean_alpha_2)
+print(mean_TMSD_D, mean_TMSD_v, mean_TMSD_K, mean_TMSD_alpha, mean_TMSD_alpha, mean_mean_walk_vel, mean_D_v, mean_a_v, mean_D_r, mean_a_r, mean_beta, mean_alpha_1)
 
-std_TSMD_b = np.std(list_TSMD_b)
-std_TSMD_m = np.std(list_TSMD_m)
-std_TSMD_v = np.std(list_TSMD_v)
-std_TSMD_K = np.std(list_TSMD_K)
-std_TSMD_alpha = np.std(list_TSMD_alpha)
+#std_TMSD_b = np.std(list_TMSD_b)
+#std_TMSD_m = np.std(list_TMSD_m)
+std_TMSD_D = np.std(list_TMSD_D)
+std_TMSD_v = np.std(list_TMSD_v)
+std_TMSD_K = np.std(list_TMSD_K)
+std_TMSD_alpha = np.std(list_TMSD_alpha)
 std_mean_walk_vel = np.std(list_mean_walk_vel)
 std_D_v = np.std(list_D_v)
 std_a_v = np.std(list_a_v)
 std_D_r = np.std(list_D_r)
 std_a_r = np.std(list_a_r)
-std_tau = np.std(list_tau)
+#std_tau = np.std(list_tau)
 std_beta = np.std(list_beta)
 std_alpha_1 = np.std(list_alpha_1)
-std_alpha_2 = np.std(list_alpha_2)
+#std_alpha_2 = np.std(list_alpha_2)
 
-print(std_TSMD_b, std_TSMD_m, std_TSMD_v, std_TSMD_K, std_TSMD_alpha, std_TSMD_alpha, std_mean_walk_vel, std_D_v, std_a_v, std_D_r, std_a_r, std_tau, std_beta, std_alpha_1, std_alpha_2)
+#print(std_TMSD_b, std_TMSD_m, std_TMSD_v, std_TMSD_K, std_TMSD_alpha, std_TMSD_alpha, std_mean_walk_vel, std_D_v, std_a_v, std_D_r, std_a_r, std_tau, std_beta, std_alpha_1, std_alpha_2)
+print(std_TMSD_D, std_TMSD_v, std_TMSD_K, std_TMSD_alpha, std_TMSD_alpha, std_mean_walk_vel, std_D_v, std_a_v, std_D_r, std_a_r, std_beta, std_alpha_1)
